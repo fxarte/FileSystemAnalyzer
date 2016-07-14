@@ -9,7 +9,14 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -21,23 +28,17 @@ import java.nio.file.WatchService;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import fileSystemAnalyzer.SimpleObservableVisitor;
 import fileSystemAnalyzer.analyzers.FileAnalyzer;
 import fileSystemAnalyzer.analyzers.FileAnalyzerAPI;
 import fileSystemAnalyzer.processors.DataProcessorsAPI;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.Properties;
-
-import org.apache.commons.io.FileUtils;
+//import org.apache.commons.io.FileUtils;
 
 /**
  * Example to watch a directory (or tree) for changes to files.
@@ -48,15 +49,18 @@ public class ProcessFolder {
   private final Map<WatchKey, Path> keys;
   static boolean recursive;
   public static String watchDirectory;
+  public static String commandsOutPut;
+  public static String commandsOS;
   public static String commandsComment;
   public static String commandsRowOperations;
   public static String commandsOperationSkipRow = "last";
   public static String logFolder = "logs";
-  public static String logFile = logFolder+"/output.log";
-  
+  public static String logFile = logFolder + "/output.log";
+
   private boolean trace = true;
   public static final Boolean refreshDB = true;
-
+  private static final Logger logger = Logger.getLogger(ProcessFolder.class.getName());
+  
   private static void loadProperties() {
     Properties prop = new Properties();
     InputStream input = null;
@@ -69,27 +73,34 @@ public class ProcessFolder {
       // get the property value and print it out
       recursive = "yes".equals(prop.getProperty("recurse").toLowerCase());
       String watchDirectoryPropertyValue = prop.getProperty("watchDirectory");
+      commandsOS = prop.getProperty("commandsOS");
+      commandsOutPut = prop.getProperty("commandsOutPut", "cmds.log");
       commandsComment = prop.getProperty("commandsComment", "# ");
       commandsRowOperations = prop.getProperty("commandsRowOperations", "# ");
+      commandsOperationSkipRow = prop.getProperty("commandsOperationSkipRow", "last");
 
       logFolder = prop.getProperty("logFolder");
-      logFile = logFolder +"/"+ prop.getProperty("logFile");
-      
+      logFile = logFolder + "/" + prop.getProperty("logFile");
+
       File wf = new File(watchDirectoryPropertyValue);
       if (wf.exists() && wf.isDirectory()) {
         watchDirectory = watchDirectoryPropertyValue;
-      } else {
+      }
+      else {
         String exceptionMessage = String.format("The provided folder:<%s> is not valid folder or the app has no access", watchDirectoryPropertyValue);
         throw new IllegalArgumentException(exceptionMessage);
       }
 
-    } catch (IOException ex) {
+    }
+    catch (IOException ex) {
       ex.printStackTrace();
-    } finally {
+    }
+    finally {
       if (input != null) {
         try {
           input.close();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
           e.printStackTrace();
         }
       }
@@ -105,13 +116,13 @@ public class ProcessFolder {
    * Register the given directory with the WatchService
    */
   private void register(Path dir) throws IOException {
-    WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE,
-            ENTRY_MODIFY);
+    WatchKey key = dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
     if (trace) {
       Path prev = keys.get(key);
       if (prev == null) {
         System.out.format("register: %s\n", dir);
-      } else {
+      }
+      else {
         if (!dir.equals(prev)) {
           System.out.format("update: %s -> %s\n", prev, dir);
         }
@@ -133,8 +144,9 @@ public class ProcessFolder {
     try {
       // register directory and sub-directories
       Files.walkFileTree(start, new SimpleObservableVisitor());
-    } catch (IOException ex) {
-    	System.err.println(ex);
+    }
+    catch (IOException ex) {
+      System.err.println(ex);
     }
   }
 
@@ -152,7 +164,8 @@ public class ProcessFolder {
       registerAll(dir);
       Date t1 = new Date();
       System.out.format("%nDone. (%s ms) %n", (t1.getTime() - t0.getTime()));
-    } else {
+    }
+    else {
       register(dir);
     }
 
@@ -170,14 +183,14 @@ public class ProcessFolder {
       WatchKey key;
       try {
         key = watcher.take();
-      } catch (InterruptedException x) {
+      }
+      catch (InterruptedException x) {
         return;
       }
 
       Path dir = keys.get(key);
       if (dir == null) {
-        System.err.println("WatchKey not recognized!! "
-                + dir.toString());
+        System.err.println("WatchKey not recognized!! " + dir.toString());
         continue;
       }
 
@@ -234,31 +247,33 @@ public class ProcessFolder {
 
   public static void main(String[] args) throws IOException {
     // load properties
-	  init();
+    init();
 
     // parse arguments
-//    if (args.length == 0 || args.length > 2) {
-//      usage();
-//    }
+    // if (args.length == 0 || args.length > 2) {
+    // usage();
+    // }
 
-//    boolean recursive = false;
-//    int dirArg = 0;
-//    if (args[0].equals("-r")) {
-//      if (args.length < 2) {
-//        usage();
-//      }
-//      recursive = true;
-//      dirArg++;
-//    } else if (args[0].equals("-p") || args[0].equals("-p")) {
-//      //run all reports, for now
-//      processProcessed();
-//    }
+    // boolean recursive = false;
+    // int dirArg = 0;
+    // if (args[0].equals("-r")) {
+    // if (args.length < 2) {
+    // usage();
+    // }
+    // recursive = true;
+    // dirArg++;
+    // } else if (args[0].equals("-p") || args[0].equals("-p")) {
+    // //run all reports, for now
+    // processProcessed();
+    // }
     Boolean refreshFileData = ProcessFolder.refreshDB;
     try {
       instantiateAnalizers();
-    } catch (NoSuchMethodException | SecurityException | ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+    }
+    catch (NoSuchMethodException | SecurityException | ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
       System.err.println("An exception occur, these are the details" + ex.getMessage());
-    } catch (NoSuchFieldException e) {
+    }
+    catch (NoSuchFieldException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -269,47 +284,45 @@ public class ProcessFolder {
       ProcessFolder p = new ProcessFolder(dir, recursive);
       System.out.println("Start processing folder " + watchDirectory);
       processProcessed();
-//            p.processEvents();
-    } else {
-    	System.err.println("Cannot access the folder '" + watchDirectory + "' for processing");
+      // p.processEvents();
+    }
+    else {
+      System.err.println("Cannot access the folder '" + watchDirectory + "' for processing");
     }
 
   }
 
   private static void init() {
-	    loadProperties();
-	    
-	    reRouteOutput();
-	
-}
+    loadProperties();
 
-private static void reRouteOutput() {
-	  new File(logFolder).mkdirs();
-	try {
-		System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)),true));
-	} catch (FileNotFoundException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} 
-  	System.out.println( "=====================================================================================\n" +
-  			logFile +
-	"\n=====================================================================================");
-  	System.err.println("System.out is being sent to:"+logFile);
+    reRouteOutput();
 
-	
-}
+  }
 
-private static void processProcessed() {
+  private static void reRouteOutput() {
+    new File(logFolder).mkdirs();
+    try {
+      System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), true));
+    }
+    catch (FileNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    System.out.println("=====================================================================================\n" + logFile + "\n=====================================================================================");
+    System.err.println("System.out is being sent to:" + logFile);
+
+  }
+
+  private static void processProcessed() {
     DataProcessorsAPI.INSTANCE.processData();
   }
 
-  private static void instantiateAnalizers() throws NoSuchMethodException,
-          SecurityException, ClassNotFoundException, IllegalAccessException,
-          IllegalArgumentException, InvocationTargetException,
-          NoSuchFieldException {
+  private static void instantiateAnalizers() throws NoSuchMethodException, SecurityException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
     Set<FileAnalyzer> al = FileAnalyzerAPI.INSTANCE.getAnalyzerProviders();
     System.out.println(al);
+    for (FileAnalyzer fa : al) {
+      logger.log(Level.INFO, "--------- Using analiser: {0} ", fa.getClass().getName());
+    }
     SimpleObservableVisitor.setPluggings(al);
-
   }
 }

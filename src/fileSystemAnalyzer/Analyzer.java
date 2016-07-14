@@ -7,4 +7,5 @@ package fileSystemAnalyzer;
  *
  */
 public interface Analyzer<I, S> {
+  
 }

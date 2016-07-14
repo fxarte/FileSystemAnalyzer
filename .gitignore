@@ -44,3 +44,8 @@ local.properties
 
 # TeXlipse plugin
 .texlipse
+
+#NetBeans
+/nbproject/private/
+/build/
+/dist/

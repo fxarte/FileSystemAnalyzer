@@ -29,13 +29,12 @@ public enum ItemSize implements FileAnalyzer, DBSingleStorage {
   public void analyzeItem(FileContext context) {
     // TODO: Add proper ItemCore dependency logic, sych the ids
     String size = String.valueOf(context.getFileAttributes().size());
-    DBInstance.updateValue(context.getPath().toString(), context.getPath()
-            .getParent().toString(), size);
+    DBInstance.updateValue(context.getPath().toString(), context.getPath().getParent().toString(), size);
     // System.out.format("processing File: %s\n", filePath);
   }
 
   public void analyzeItems(FileContext context) {
-    //Long size = Files.size(context.getPath());
+    // Long size = Files.size(context.getPath());
     String folderPath = context.getPath().toString();
     String results = DBInstance.aggregateValuesByParent("sum", folderPath);
     Long sum = 0L;
@@ -54,12 +53,20 @@ public enum ItemSize implements FileAnalyzer, DBSingleStorage {
     return defensiveCopyMap;
   }
 
+  /**
+   * Returns the size in bytes of a given path
+   * 
+   * @param path
+   * @return
+   */
   public Long getValueOf(String path) {
+    // TODO: forgot behavior with dirs
     String sizeString = DBInstance.selectValueOf(path);
     long size = 0L;
     if (sizeString != null && !sizeString.trim().equals("")) {
       size = Long.parseLong(sizeString);
-    } else {
+    }
+    else {
       String m = String.format("null or empty size for path %s.", path);
       System.out.println(m);
     }
@@ -74,7 +81,8 @@ public enum ItemSize implements FileAnalyzer, DBSingleStorage {
       String sizeString = entry.getKey();
       if (sizeString != null && !sizeString.trim().equals("")) {
         size = Long.parseLong(sizeString);
-      } else {
+      }
+      else {
         String m = "Null or empty string size found during processing grouped sizes";
         System.out.println(m);
       }
