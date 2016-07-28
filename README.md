@@ -8,7 +8,7 @@ Update provided settings.properties with the proper values.
   logFile=O ptional, defaults to output.log
 
 ##Requirements:
-JSE 1.7+
+Java 1.8
 ###Libraries:
   + commons-io-2.4.jar
   + sqlite4java.jar
