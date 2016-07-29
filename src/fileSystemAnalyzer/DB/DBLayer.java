@@ -226,6 +226,8 @@ public final class DBLayer implements AnalyzerStorage {
             conn = new SQLiteConnection(databasePath);
             if (!conn.isOpen()) {
                 try {
+                    //TODO: On OSX we need to rename the libs file, see http://stackoverflow.com/a/22099958/1599129
+                    //TODO: This worked: cp libsqlite4java-osx.jnilib libsqlite4java-osx-amd64.dylib
                     conn.open(true);
                     _db = new DBLayer(PluginId);
                     _db.Connection = conn;

@@ -192,14 +192,17 @@ public enum Duplicates implements Processors, DBSingleStorage {
    */
   Long getPathsValidatedSize(List<String> paths) throws IllegalArgumentException {
     Set<Long> sizes = new HashSet<>();
+    StringBuilder logPaths = new StringBuilder();
     for (String path : paths) {
       sizes.add(ItemSize.INSTANCE.getValueOf(path));
+      logPaths.append(path);
+      logPaths.append("\n");
     }
     if (sizes.size() == 1) {
       return sizes.iterator().next();
     }
     else {
-      throw new IllegalArgumentException("The paths do not have the same size");
+      throw new IllegalArgumentException("The paths do not have the same size:\n"+logPaths.toString());
     }
   }
 }
