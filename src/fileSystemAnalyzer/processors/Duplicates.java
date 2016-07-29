@@ -194,15 +194,23 @@ public enum Duplicates implements Processors, DBSingleStorage {
     Set<Long> sizes = new HashSet<>();
     StringBuilder logPaths = new StringBuilder();
     for (String path : paths) {
-      sizes.add(ItemSize.INSTANCE.getValueOf(path));
+      Long size = ItemSize.INSTANCE.getValueOf(path);
+      String hash = ItemHash.INSTANCE.getValueOf(path);
+      sizes.add(size);
       logPaths.append(path);
+      logPaths.append(" ");
+      logPaths.append(size);
+      logPaths.append(" ");
+      logPaths.append(hash);
       logPaths.append("\n");
     }
     if (sizes.size() == 1) {
       return sizes.iterator().next();
     }
     else {
-      throw new IllegalArgumentException("The paths do not have the same size:\n"+logPaths.toString());
+      String hash= ItemHash.INSTANCE.getValueOf(paths.get(0));
+      String message = String.format("These items have the same hash:'%s' but do not have the same size:\n%s", hash, logPaths.toString());
+      throw new IllegalArgumentException(message);
     }
   }
 }

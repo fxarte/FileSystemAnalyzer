@@ -23,24 +23,24 @@ public class FileContext {
 		this.path = path;
 		this.fileAttrs = FileAttrs;
 		this.inMemoryFileContent = inMem;
-    this.fileContentBytes = null;
-    try {
-      this.fileContentBytes = IOUtils.toByteArray(inMem);
-    }
-    catch (Exception e) {
-      System.err.printf("Error while reading %s",path);
-      e.printStackTrace();
-    }
-		//this.inMemoryFileContent = null;
-		//with: 11460	8244	8133	8227 (21599,15662,15520)
-		//null: 8220	8219	8286	8227 (
+        this.fileContentBytes = null;
+        try {
+          this.fileContentBytes = IOUtils.toByteArray(inMem);
+        }
+        catch (Exception e) {
+          System.err.printf("Error while reading %s",path);
+          e.printStackTrace();
+        }
+        //this.inMemoryFileContent = null;
+        //with: 11460	8244	8133	8227 (21599,15662,15520)
+        //null: 8220	8219	8286	8227 (
 	}
 
 	private FileContext(Path path, BasicFileAttributes FileAttrs) {
 		this.path = path;
 		this.fileAttrs = FileAttrs;
 		inMemoryFileContent = null;
-    fileContentBytes = null;
+        fileContentBytes = null;
 	}
 	/**
 	 * This approach assumes that the attributes of the files will not change during processing
@@ -68,5 +68,9 @@ public class FileContext {
 	public InputStream getInMemoryFileContent() {
 		return this.inMemoryFileContent;
 	}
+
+    void closeResource() throws IOException {
+        this.inMemoryFileContent.close();
+    }
 
 }

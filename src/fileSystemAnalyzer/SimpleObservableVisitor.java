@@ -15,6 +15,8 @@ import java.util.Set;
 
 
 import fileSystemAnalyzer.analyzers.FileAnalyzer;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 public class SimpleObservableVisitor extends Observable implements
 		FileVisitor<Path> {
@@ -46,44 +48,22 @@ public class SimpleObservableVisitor extends Observable implements
 	}
 
 	@Override
-	public FileVisitResult visitFile(Path file, BasicFileAttributes arg1)
-			throws IOException {
-		/*
-		long start_time = System.nanoTime();  
-		// create a temp instance in memory for the file, if it is not too big
-		//System.out.format("processing file %s with Tika:%n", file.getFileName().toString());
-		try (final InputStream  input = new FileInputStream(file.toFile())) {
-			Metadata metadata = new Metadata();
-			BodyContentHandler handler = new BodyContentHandler();
-			AutoDetectParser parser = new AutoDetectParser();
-			String mimeType = new Tika().detect(input);
-			metadata.set(Metadata.CONTENT_TYPE, mimeType);
-			parser.parse(input, handler, metadata);
-			
-			for (FileAnalyzer da : pluggins) {
-				//System.out.format("\t applying processor: %s%n", da.getClass().toString());
-				da.analyzeItem(FileContext.valueOf(file, arg1, metadata, input));
-			}
-		}
-		catch (Exception ex) {
-			//System.out.format("tika failed (%s), using regurlar filestram reader%n", ex.getMessage(), file.getFileName().toString());
-			for (FileAnalyzer da : pluggins) {
-				//System.out.format("\t applying processor: %s%n", da.getClass().toString());
-				da.analyzeItem(FileContext.valueOf(file, arg1, null));
-			}
-		}
-		double d = (System.nanoTime() - start_time)/1e6;
-		long s = arg1.size();
-		//System.out.format("Time/size = (%s)/(%s) = (%s)%n", d, s, (d/s) );
-		*/
-		try (final InputStream  input = new FileInputStream(file.toFile())) {
-			FileContext context = FileContext.valueOf(file, arg1, input);
-			System.out.println(file.toFile());
-			for (FileAnalyzer da : pluggins) {
-				//System.out.format("\t applying processor: %s%n", da.getClass().toString());
-				da.analyzeItem(context);
-			}
-		}
+	public FileVisitResult visitFile(Path file, BasicFileAttributes arg1) throws IOException {
+        FileContext context = null;
+        System.out.println(file.toFile());
+        if (arg1.isSymbolicLink()) {
+            String syml = Files.readSymbolicLink(file).toString();
+            InputStream stream = new ByteArrayInputStream(syml.getBytes(StandardCharsets.UTF_8));
+            context = FileContext.valueOf(file, arg1, stream);
+        } else {
+            InputStream input = new FileInputStream(file.toFile());
+            context = FileContext.valueOf(file, arg1, input);
+        }
+        for (FileAnalyzer da : pluggins) {
+            //System.out.format("\t applying processor: %s%n", da.getClass().toString());
+            da.analyzeItem(context);
+        }
+        context.closeResource();
 		return FileVisitResult.CONTINUE;
 	}
 

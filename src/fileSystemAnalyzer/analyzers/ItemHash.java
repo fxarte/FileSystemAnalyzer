@@ -17,6 +17,9 @@ import fileSystemAnalyzer.Analyzer;
 import fileSystemAnalyzer.FileContext;
 import fileSystemAnalyzer.DB.DBLayer;
 import fileSystemAnalyzer.DB.DBSingleStorage;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 public enum ItemHash implements FileAnalyzer, DBSingleStorage {
 
@@ -48,10 +51,23 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
     MessageDigest digest = MessageDigest.getInstance("SHA-1");
     InputStream fis;
 //    if (context.getInMemoryFileContent() != null) {
-//      fis = context.getInMemoryFileContent();
-////    } else {
-      fis = new FileInputStream(context.getPath().toString());
+      fis = context.getInMemoryFileContent();
+      byte[]  bytes = context.getBytes();
+//    } else {
+//      fis = new FileInputStream(context.getPath().toString());
 //    }
+/*
+BasicFileAttributes arg1 = context.getFileAttributes();
+Path file = context.getPath();
+
+        if (arg1.isSymbolicLink()) {
+            String syml = Files.readSymbolicLink(file).toString();
+            fis = new ByteArrayInputStream(syml.getBytes(StandardCharsets.UTF_8));
+        } else {
+            fis = new FileInputStream(file.toFile());
+        }
+*/
+
 
     int n = 0;
     byte[] buffer = new byte[8192];
@@ -62,7 +78,8 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
       }
     }
 //     fis.close();
-    byte[] hash = digest.digest();
+//    byte[] hash = digest.digest();
+    byte[] hash = digest.digest(bytes);
     
     String stringToStore = Base64.encodeBase64String(hash);
     return stringToStore;
@@ -131,12 +148,20 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
     String value;
     try {
       value = createFileSha1(context);
+//      if (arg1.isSymbolicLink()) {
+//        System.out.printf(">>>>: %d\n", context.getBytes().length);
+//      } else {
+//        System.out.printf("++++: %d\n", context.getBytes().length);
+//      }
+//System.out.printf("                  '%s': %s\n",context.getPath().toString(), value );
+
       DBInstance.updateValue(path, parent, value);
       // System.out.format("processing File: %s\n", filePath);
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    
     /*
      String extension = "";
 
@@ -193,4 +218,14 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
     return DBInstance.selectGroupedValues(minCount);
   }
 
+    /**
+   * Returns the hash for a given path
+   * 
+   * @param path
+   * @return
+   */
+  public String getValueOf(String path) {
+    String sizeString = DBInstance.selectValueOf(path);
+    return sizeString;
+  }
 }
