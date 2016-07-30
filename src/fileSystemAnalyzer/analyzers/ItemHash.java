@@ -52,6 +52,7 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
     InputStream fis;
 //    if (context.getInMemoryFileContent() != null) {
       fis = context.getInMemoryFileContent();
+      //TODO This approach will require lots for memory for big files
       byte[]  bytes = context.getBytes();
 //    } else {
 //      fis = new FileInputStream(context.getPath().toString());

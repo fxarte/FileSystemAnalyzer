@@ -46,6 +46,8 @@ public enum Duplicates implements Processors, DBSingleStorage {
    */
   @Override
   public void analyzeItems() {
+    StringBuilder out = new StringBuilder();
+    String humanBytes="";
     logger.info(String.format("%s processing Duplicates ... ", ProcessFolder.commandsComment));
     System.out.println(String.format("%s processing Duplicates ... ", ProcessFolder.commandsComment));
     
@@ -64,31 +66,43 @@ public enum Duplicates implements Processors, DBSingleStorage {
     // group,
     // for instace 2 empty folder that are not part of similar tress at all.
     // May be is best to leav it as is, as clean the FS iteratively
+    
+    //Loop types: Directories and Files for now
     for (Map.Entry<String, Map<Long, Map<String, List<String>>>> entry : groupedSizes.entrySet()) {
       String groupType = entry.getKey();
-      System.out.println(String.format("%s Type: %s", ProcessFolder.commandsComment, groupType));
+      out.append(String.format("%s Type: %s\n", ProcessFolder.commandsComment, groupType));
       Map<Long, Map<String, List<String>>> sortedBySizeGroup = entry.getValue();
       
+      // Loop through the first 10 biggest sizes in decreasing order
+      int c = 0;
       for (Map.Entry<Long, Map<String, List<String>>> hashedPaths : sortedBySizeGroup.entrySet()) {
+          if (ProcessFolder.showBiggestItems>0) {
+            if (c >= ProcessFolder.showBiggestItems) break;
+          }
+        c ++;
         Long groupSize = hashedPaths.getKey();
         
-        System.out.println(String.format("%s Size: %d", ProcessFolder.commandsComment, groupSize));
+        humanBytes = FileUtils.byteCountToDisplaySize(groupSize);
+        out.append(String.format("%s Item: %d  Size: %s ", ProcessFolder.commandsComment, c, humanBytes));
+        
         for (Map.Entry<String, List<String>> hashedValues : hashedPaths.getValue().entrySet()) {
           String groupHash = hashedValues.getKey();
-          System.out.println(String.format("%s Hash: %s", ProcessFolder.commandsComment, groupHash));
+          out.append(String.format("Hash: %s\n", groupHash));
           int operationCount = 0;
           int skipRowOperation = ("first".equals(ProcessFolder.commandsOperationSkipRow)) ? 0 : hashedValues.getValue().size() - 1;
           
+          // Loop through items with equal hash code
           for (String path : hashedValues.getValue()) {
             // TODO from path, get type and size
             String rowOperation = String.format("%s \"%s\"", ProcessFolder.commandsRowOperations, path);
             // TODO: With item type from groupType better prepare the row
             // operation
             if (operationCount == skipRowOperation) {
-              System.out.println(String.format("%s %s", ProcessFolder.commandsComment, rowOperation));
+              out.append(String.format("%s %s\n", ProcessFolder.commandsComment, rowOperation));
             }
             else {
-              System.out.println(rowOperation);
+              out.append(rowOperation);
+              out.append("\n");
 //              Long itemSize = ItemSize.INSTANCE.getValueOf(path);
 //              logger.info(groupType);
               if (groupType.equals("F")){
@@ -101,9 +115,10 @@ public enum Duplicates implements Processors, DBSingleStorage {
         }
       }
     }
-    String humanBytes = FileUtils.byteCountToDisplaySize(recoveredSize);
-    System.out.println(String.format("%s Drive space to recover: %s", ProcessFolder.commandsComment, humanBytes));
-    System.out.println(String.format("%s %s", ProcessFolder.commandsComment, "Duplicates done!"));
+    humanBytes = FileUtils.byteCountToDisplaySize(recoveredSize);
+    out.insert(0, String.format("%s Drive space to recover: %s\n", ProcessFolder.commandsComment, humanBytes));
+    out.insert(0,String.format("%s %s\n", ProcessFolder.commandsComment, "Duplicates done!"));
+    System.out.println(out);
     logger.info(String.format("%s %s", ProcessFolder.commandsComment, "Duplicates done!"));
     logger.info(String.format("Drive space to recover: %s bytes", humanBytes));
   }

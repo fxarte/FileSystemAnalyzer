@@ -56,6 +56,7 @@ public class ProcessFolder {
   public static String commandsOperationSkipRow = "last";
   public static String logFolder = "logs";
   public static String logFile = logFolder + "/output.log";
+  public static Integer showBiggestItems;
 
   private boolean trace = true;
   public static final Boolean refreshDB = true;
@@ -78,6 +79,7 @@ public class ProcessFolder {
       commandsComment = prop.getProperty("commandsComment", "# ");
       commandsRowOperations = prop.getProperty("commandsRowOperations", "# ");
       commandsOperationSkipRow = prop.getProperty("commandsOperationSkipRow", "last");
+      showBiggestItems = Integer.valueOf(prop.getProperty("showBiggestItems", "-1"));
 
       logFolder = prop.getProperty("logFolder");
       logFile = logFolder + "/" + prop.getProperty("logFile");
