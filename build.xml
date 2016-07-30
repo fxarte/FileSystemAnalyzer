@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="FileSystemAnalyzer" default="main" basedir=".">
+  <description>Builds, tests, and runs the project FileSystemAnalyzer.</description>
+  <property name="projectName" value="FileSystemAnalyzer" />
+  <loadproperties srcFile="build.properties"/>
+  <property name="target" value="1.8"/>
+  <property name="source" value="1.8"/>
+  
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp />
+    
+  	<!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build.dir}" />
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist.dir}" />
+    <mkdir dir="${dist.dir}/${lib.dir}" />
+  	
+    <exec executable="git" outputproperty="git.revision">
+      <arg value="log" />
+      <arg value="-1" />
+      <arg value="--pretty=format:%h" />
+    </exec>
+  </target>
+
+  <path id="FileSystemAnalyzer.classpath">
+    <fileset dir="${lib.dir}">
+      <include name="*.jar"/>
+    </fileset>
+    <pathelement location="${build.dir}" />
+  </path>
+
+  <pathconvert property="manifest.classpath" pathsep="${line.separator} ">
+    <path refid="FileSystemAnalyzer.classpath"/>
+    <mapper>
+      <chainedmapper>
+        <flattenmapper/>
+        <globmapper from="*.jar" to="*.jar"/>
+      </chainedmapper>
+    </mapper>
+  </pathconvert>
+
+  <target name="compile" depends="init" description="compile the source">
+    <!-- Compile the java code from ${src.dir} into ${build.dir} -->
+    <!-- <javac includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" encoding="UTF-8"> -->
+    <javac includeantruntime="false" destdir="${build.dir}" encoding="UTF-8" source="${source}" target="${target}">
+      <src path="${src.dir}"/>
+      <classpath refid="FileSystemAnalyzer.classpath"/>
+    </javac>
+    <!-- copy properties -->
+    <copy todir="${build.dir}">
+      <fileset dir="${src.dir}" includes="**/*.properties" />
+    </copy>
+  </target>
+
+  <target name="dist-folders" />
+
+  <target name="dist" depends="compile, dist-folders" description="package, output to JAR">
+
+  	<!-- <copy file="${lib.dir}/logging.properties" tofile="${dist.dir}/${lib.dir}/logging.properties" /> -->
+
+    <echo message="Building APP JAR file" />
+    <jar jarfile="${dist.dir}/${projectName}-${git.revision}.jar" basedir="${build.dir}" >
+<!--      <zipgroupfileset dir="${lib.dir}">
+      	<include name="*.jar"/>
+	  </zipgroupfileset> -->
+      <manifest>
+        <!-- create an executable Jar -->
+        <attribute name="Main-Class" value="${main.class}" />
+        <attribute name="Class-Path" value="${manifest.classpath}"/>
+      </manifest>
+    </jar>
+    
+    <copy todir="${dist.dir}/${lib.dir}">
+      <fileset dir="${lib.dir}" />
+    </copy>
+  	
+    <copy file="settings.properties" tofile="${dist.dir}/settings.properties"/>
+
+    <copy file="README.md" tofile="${dist.dir}/README.md"/>
+    <!-- Copy provided models to resource folder -->
+    <!-- <echo message="Copying from ${model.en.source.dir} to en-US" /> -->
+
+  </target>
+
+  <target name="clean" description="clean up">
+    <delete dir="${build.dir}" />
+    <delete dir="${dist.dir}" />
+  </target>
+
+  <!-- Default, run this -->
+  <target name="main" depends="clean, compile, dist" />
+</project>
