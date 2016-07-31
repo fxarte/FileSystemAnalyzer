@@ -50,25 +50,22 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
   private String createFileSha1(FileContext context) throws Exception {
     MessageDigest digest = MessageDigest.getInstance("SHA-1");
     InputStream fis;
-//    if (context.getInMemoryFileContent() != null) {
-      fis = context.getResourceStream();
-      //TODO This approach will require lots for memory for big files
-      byte[]  bytes = context.getBytes();
-//    } else {
-//      fis = new FileInputStream(context.getPath().toString());
-//    }
-/*
-BasicFileAttributes arg1 = context.getFileAttributes();
-Path file = context.getPath();
-
-        if (arg1.isSymbolicLink()) {
-            String syml = Files.readSymbolicLink(file).toString();
-            fis = new ByteArrayInputStream(syml.getBytes(StandardCharsets.UTF_8));
-        } else {
-            fis = new FileInputStream(file.toFile());
-        }
-*/
-
+    // if (context.getInMemoryFileContent() != null) {
+    fis = context.getResourceStream();
+    // TODO This approach will require lots for memory for big files
+    byte[] bytes = context.getBytes();
+    // } else {
+    // fis = new FileInputStream(context.getPath().toString());
+    // }
+    /*
+     * BasicFileAttributes arg1 = context.getFileAttributes(); Path file =
+     * context.getPath();
+     * 
+     * if (arg1.isSymbolicLink()) { String syml =
+     * Files.readSymbolicLink(file).toString(); fis = new
+     * ByteArrayInputStream(syml.getBytes(StandardCharsets.UTF_8)); } else { fis
+     * = new FileInputStream(file.toFile()); }
+     */
 
     int n = 0;
     byte[] buffer = new byte[8192];
@@ -78,10 +75,10 @@ Path file = context.getPath();
         digest.update(buffer, 0, n);
       }
     }
-//     fis.close();
-//    byte[] hash = digest.digest();
+    // fis.close();
+    // byte[] hash = digest.digest();
     byte[] hash = digest.digest(bytes);
-    
+
     String stringToStore = Base64.encodeBase64String(hash);
     return stringToStore;
   }
@@ -130,8 +127,8 @@ Path file = context.getPath();
 
     byte[] hash = digest.digest();
     String stringToStore = Base64.encodeBase64String(hash);
-		// gB9qBtZdxFB33Gtm4uTlIgwuO0U=
-    //byte[] restoredBytes = Base64.decodeBase64(stringToStore);
+    // gB9qBtZdxFB33Gtm4uTlIgwuO0U=
+    // byte[] restoredBytes = Base64.decodeBase64(stringToStore);
     // [-128, 31, 106, 6, -42, 93, -60, 80, 119, -36, 107, 102, -30, -28,
     // -27, 34, 12, 46, 59, 69]
     // [-128, 31, 106, 6, -42, 93, -60, 80, 119, -36, 107, 102, -30, -28,
@@ -149,12 +146,13 @@ Path file = context.getPath();
     String value;
     try {
       value = createFileSha1(context);
-//      if (arg1.isSymbolicLink()) {
-//        System.out.printf(">>>>: %d\n", context.getBytes().length);
-//      } else {
-//        System.out.printf("++++: %d\n", context.getBytes().length);
-//      }
-//System.out.printf("                  '%s': %s\n",context.getPath().toString(), value );
+      // if (arg1.isSymbolicLink()) {
+      // System.out.printf(">>>>: %d\n", context.getBytes().length);
+      // } else {
+      // System.out.printf("++++: %d\n", context.getBytes().length);
+      // }
+      // System.out.printf("                  '%s': %s\n",context.getPath().toString(),
+      // value );
 
       DBInstance.updateValue(path, parent, value);
       // System.out.format("processing File: %s\n", filePath);
@@ -162,22 +160,18 @@ Path file = context.getPath();
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
-    /*
-     String extension = "";
 
-     int i = path.lastIndexOf('.');
-     if (i > 0) {
-     extension = path.substring(i + 1).toLowerCase();
-     }
-     // TODO: Incomplete
-     if (extension.equals("jpg") && false)
-     calculateBRIEF(filePath, arg1);
+    /*
+     * String extension = "";
+     * 
+     * int i = path.lastIndexOf('.'); if (i > 0) { extension = path.substring(i
+     * + 1).toLowerCase(); } // TODO: Incomplete if (extension.equals("jpg") &&
+     * false) calculateBRIEF(filePath, arg1);
      */
   }
 
   public void analyzeItems(FileContext context) {
-		// com.tangosol.util Class HashHelper ?
+    // com.tangosol.util Class HashHelper ?
     // public static int hash(java.util.Collection col,int hash)
     // get all files hashes
     // calculate folder hash
@@ -186,40 +180,34 @@ Path file = context.getPath();
       value = createFolderSha1(context.getPath());
       DBLayer core = DBLayer.getDbInstanceOf(ItemCore.class);
 
-      DBInstance.updateValue(context.getPath().toString(), context
-              .getPath().getParent().toString(), value);
+      DBInstance.updateValue(context.getPath().toString(), context.getPath().getParent().toString(), value);
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
 
   }
-  /*
-   private void calculateBRIEF(Path filePath, BasicFileAttributes arg1) {
-   // TODO Auto-generated method stub
-   String path = filePath.toString();
-   // The JRE is 64 bits and the jar file is 32bits, we have to load the
-   // library manually ;/
-   System.load("C:\\Users\\felix\\workspace\\opencv\\opencv\\build\\java\\x64\\opencv_java248.dll");
-   // FeatureDetector star = FeatureDetector.create(FeatureDetector.STAR);
-   try {
-   Mat image = Highgui.imread(path);
 
-   int w = image.width();
-   int h = image.height();
-   System.out.printf("height: %i; width:%i%n", w, h);
-   // star.detect(image, keypoints);
-   } catch (Exception ex) {
-   System.out.println("error while processing image");
-   }
-   }
+  /*
+   * private void calculateBRIEF(Path filePath, BasicFileAttributes arg1) { //
+   * TODO Auto-generated method stub String path = filePath.toString(); // The
+   * JRE is 64 bits and the jar file is 32bits, we have to load the // library
+   * manually ;/ System.load(
+   * "C:\\Users\\felix\\workspace\\opencv\\opencv\\build\\java\\x64\\opencv_java248.dll"
+   * ); // FeatureDetector star = FeatureDetector.create(FeatureDetector.STAR);
+   * try { Mat image = Highgui.imread(path);
+   * 
+   * int w = image.width(); int h = image.height();
+   * System.out.printf("height: %i; width:%i%n", w, h); // star.detect(image,
+   * keypoints); } catch (Exception ex) {
+   * System.out.println("error while processing image"); } }
    */
 
   public Map<String, List<String>> getGroupedValues(int minCount) {
     return DBInstance.selectGroupedValues(minCount);
   }
 
-    /**
+  /**
    * Returns the hash for a given path
    * 
    * @param path
