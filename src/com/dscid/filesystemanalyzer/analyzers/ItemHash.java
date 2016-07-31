@@ -49,11 +49,7 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
    */
   private String createFileSha1(FileContext context) throws Exception {
     MessageDigest digest = MessageDigest.getInstance("SHA-1");
-    InputStream fis;
-    // if (context.getInMemoryFileContent() != null) {
-    fis = context.getResourceStream();
     // TODO This approach will require lots for memory for big files
-    byte[] bytes = context.getBytes();
     // } else {
     // fis = new FileInputStream(context.getPath().toString());
     // }
@@ -66,21 +62,29 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
      * ByteArrayInputStream(syml.getBytes(StandardCharsets.UTF_8)); } else { fis
      * = new FileInputStream(file.toFile()); }
      */
-
-    int n = 0;
-    byte[] buffer = new byte[8192];
-    while (n != -1) {
-      n = fis.read(buffer);
-      if (n > 0) {
-        digest.update(buffer, 0, n);
+    byte[] hash;
+    //True if it is small file and can be cached, 
+    // otherwise we'll need to processed through a buffer
+    if (context.isFileContentInMemory()){
+      byte[] bytes = context.getBytes();
+      hash = digest.digest(bytes);
+    } else {
+      InputStream fis;
+      fis = context.getResourceStream();
+      int n = 0;
+      byte[] buffer = new byte[8192];
+      while (n != -1) {
+        n = fis.read(buffer);
+        if (n > 0) {
+          digest.update(buffer, 0, n);
+        }
       }
+      // fis.close();
+      hash = digest.digest();
     }
-    // fis.close();
-    // byte[] hash = digest.digest();
-    byte[] hash = digest.digest(bytes);
-
     String stringToStore = Base64.encodeBase64String(hash);
     return stringToStore;
+
   }
 
   private String createFolderSha1(Path dirPath) throws Exception {
