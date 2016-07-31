@@ -51,6 +51,7 @@ public class SimpleObservableVisitor extends Observable implements
 	public FileVisitResult visitFile(Path file, BasicFileAttributes arg1) throws IOException {
         FileContext context = null;
         System.out.println(file.toFile());
+        //TODO See if it makes more sense to put this in FileContext class
         if (arg1.isSymbolicLink()) {
             String syml = Files.readSymbolicLink(file).toString();
             InputStream stream = new ByteArrayInputStream(syml.getBytes(StandardCharsets.UTF_8));

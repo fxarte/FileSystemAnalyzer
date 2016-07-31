@@ -51,7 +51,7 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
     MessageDigest digest = MessageDigest.getInstance("SHA-1");
     InputStream fis;
 //    if (context.getInMemoryFileContent() != null) {
-      fis = context.getInMemoryFileContent();
+      fis = context.getResourceStream();
       //TODO This approach will require lots for memory for big files
       byte[]  bytes = context.getBytes();
 //    } else {

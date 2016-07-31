@@ -74,8 +74,8 @@ public enum PrimeBasedIdentity implements FileAnalyzer, DBSingleStorage {
 
   PrimeRepresentation processPrimeBasedHash(FileContext context) throws IOException {
     InputStream fis = null;
-    if (context.getInMemoryFileContent() != null) {
-      fis = context.getInMemoryFileContent();
+    if (context.getResourceStream() != null) {
+      fis = context.getResourceStream();
     } else {
       fis = new FileInputStream(context.getPath().toString());
     }

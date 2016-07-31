@@ -45,8 +45,8 @@ public enum ItemContainerDetector implements FileAnalyzer, DBSingleStorage {
 			TikaConfig config = TikaConfig.getDefaultConfig();
 			Detector detector = config.getDetector();
 			TikaInputStream stream;
-			if (context.getInMemoryFileContent() != null) {
-				stream = TikaInputStream.get(context.getInMemoryFileContent());
+			if (context.getResourceStream() != null) {
+				stream = TikaInputStream.get(context.getResourceStream());
 			} else {
 				stream = TikaInputStream.get(context.getPath().toFile());
 			}

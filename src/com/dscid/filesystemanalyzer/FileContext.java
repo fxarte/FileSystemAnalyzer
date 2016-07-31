@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -16,19 +17,24 @@ import org.apache.commons.io.IOUtils;
 public class FileContext {
   private final Path path;
   private final BasicFileAttributes fileAttrs;
-  private final InputStream inMemoryFileContent;
+  private final InputStream stream;
   private byte[] fileContentBytes;
+  private boolean inMemoryFileContent = false;
 
-  private FileContext(Path path, BasicFileAttributes FileAttrs, InputStream inMem) throws IOException {
+  private FileContext(Path path, BasicFileAttributes FileAttrs, InputStream stream) throws IOException {
     this.path = path;
     this.fileAttrs = FileAttrs;
-    this.inMemoryFileContent = inMem;
+    this.stream = stream;
     this.fileContentBytes = null;
-    try {
-      this.fileContentBytes = IOUtils.toByteArray(inMem);
-    } catch (Exception e) {
-      System.err.printf("Error while reading %s", path);
-      e.printStackTrace();
+    // cache ONLY SMALL files
+    if (this.fileAttrs.size()<50000000){
+      this.inMemoryFileContent  = true;
+      try {
+        this.fileContentBytes = IOUtils.toByteArray(stream);
+      } catch (Exception e) {
+        System.err.printf("Error while reading %s", path);
+        e.printStackTrace();
+      }
     }
     // this.inMemoryFileContent = null;
     // with: 11460 8244 8133 8227 (21599,15662,15520)
@@ -38,7 +44,7 @@ public class FileContext {
   private FileContext(Path path, BasicFileAttributes FileAttrs) {
     this.path = path;
     this.fileAttrs = FileAttrs;
-    inMemoryFileContent = null;
+    stream = null;
     fileContentBytes = null;
   }
 
@@ -70,12 +76,15 @@ public class FileContext {
     return this.fileAttrs;
   }
 
-  public InputStream getInMemoryFileContent() {
-    return this.inMemoryFileContent;
+  public InputStream getResourceStream() {
+    return this.stream;
   }
 
   void closeResource() throws IOException {
-    this.inMemoryFileContent.close();
+    this.stream.close();
+  }
+  public boolean isFileContentInMemory(){
+    return this.inMemoryFileContent;
   }
 
 }
