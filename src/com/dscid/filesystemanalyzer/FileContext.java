@@ -40,7 +40,7 @@ public class FileContext {
 		this.path = path;
 		this.fileAttrs = FileAttrs;
 		inMemoryFileContent = null;
-        fileContentBytes = null;
+    fileContentBytes = null;
 	}
 	/**
 	 * This approach assumes that the attributes of the files will not change during processing
