@@ -57,9 +57,10 @@ public class ProcessFolder {
   public static String logFolder = "logs";
   public static String logFile = logFolder + "/output.log";
   public static Integer showBiggestItems;
+  public static boolean skipProcessed;
 
   private boolean trace = true;
-  public static final Boolean refreshDB = true;
+  public static final Boolean refreshDB = skipProcessed;
   private static final Logger logger = Logger.getLogger(ProcessFolder.class.getName());
   
   private static void loadProperties() {
@@ -80,6 +81,8 @@ public class ProcessFolder {
       commandsRowOperations = prop.getProperty("commandsRowOperations", "# ");
       commandsOperationSkipRow = prop.getProperty("commandsOperationSkipRow", "last");
       showBiggestItems = Integer.valueOf(prop.getProperty("showBiggestItems", "-1"));
+      skipProcessed = Boolean.valueOf(prop.getProperty("skipProcessed", "False"));
+      
 
       logFolder = prop.getProperty("logFolder");
       logFile = logFolder + "/" + prop.getProperty("logFile");
@@ -281,7 +284,7 @@ public class ProcessFolder {
     }
     // register directory and process its events
     Path dir = Paths.get(watchDirectory);
-    if (refreshFileData && Files.isWritable(dir)) {
+    if (/*refreshFileData && */ Files.isWritable(dir)) {
       System.out.println("Analyzing folder " + watchDirectory);
       ProcessFolder p = new ProcessFolder(dir, recursive);
       System.out.println("Start processing folder " + watchDirectory);

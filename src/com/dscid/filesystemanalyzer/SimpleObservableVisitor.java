@@ -14,7 +14,11 @@ import java.util.Observable;
 import java.util.Set;
 
 
+
+
 import com.dscid.filesystemanalyzer.analyzers.FileAnalyzer;
+import com.dscid.filesystemanalyzer.analyzers.ItemModifiedTimeStamp;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -49,23 +53,33 @@ public class SimpleObservableVisitor extends Observable implements
 
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes arg1) throws IOException {
-        FileContext context = null;
-        System.out.println(file.toFile());
-        //TODO See if it makes more sense to put this in FileContext class
-        if (arg1.isSymbolicLink()) {
-            String syml = Files.readSymbolicLink(file).toString();
-            InputStream stream = new ByteArrayInputStream(syml.getBytes(StandardCharsets.UTF_8));
-            context = FileContext.valueOf(file, arg1, stream);
-        } else {
-            InputStream input = new FileInputStream(file.toFile());
-            context = FileContext.valueOf(file, arg1, input);
-        }
-        for (FileAnalyzer da : pluggins) {
-            //System.out.format("\t applying processor: %s%n", da.getClass().toString());
-            da.analyzeItem(context);
-        }
-        context.closeResource();
-		return FileVisitResult.CONTINUE;
+      String path = file.toString();
+
+      FileContext context = null;
+      
+      //TODO See if it makes more sense to put this in FileContext class
+      if (arg1.isSymbolicLink()) {
+          String syml = Files.readSymbolicLink(file).toString();
+          InputStream stream = new ByteArrayInputStream(syml.getBytes(StandardCharsets.UTF_8));
+          context = FileContext.valueOf(file, arg1, stream);
+      } else {
+          InputStream input = new FileInputStream(file.toFile());
+          context = FileContext.valueOf(file, arg1, input);
+      }
+      
+      ProcessingActions recommendedAction = context.getRecomendedAction();
+      ItemModifiedTimeStamp.INSTANCE.analyzeItem(context);
+      recommendedAction = context.getRecomendedAction();
+      
+      if (recommendedAction.equals(ProcessingActions.Skip)) {
+        return FileVisitResult.CONTINUE;
+      }
+      
+      for (FileAnalyzer da : pluggins) {
+        da.analyzeItem(context);
+      }
+      context.closeResource();
+      return FileVisitResult.CONTINUE;
 	}
 
 	@Override

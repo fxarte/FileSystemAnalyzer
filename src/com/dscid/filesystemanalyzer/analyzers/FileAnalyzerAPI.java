@@ -12,11 +12,12 @@ public enum FileAnalyzerAPI {
 	Set<FileAnalyzer> al = new LinkedHashSet<FileAnalyzer>();
 	public Set<FileAnalyzer> getAnalyzerProviders() {
 		
-		al.add(ItemCore.INSTANCE);
+	  //These are required for System functionality
+//	  al.add(ItemModifiedTimeStamp.INSTANCE);
 		
+	  al.add(ItemCore.INSTANCE);
 		al.add(ItemSize.INSTANCE);
 		al.add(ItemHash.INSTANCE);
-//		al.add(PrimeBasedIdentity.INSTANCE);
 		return al;
 	}
 	

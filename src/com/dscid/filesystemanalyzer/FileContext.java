@@ -20,22 +20,19 @@ public class FileContext {
   private final InputStream stream;
   private byte[] fileContentBytes;
   private boolean inMemoryFileContent = false;
+  private ProcessingActions recomendedAction = ProcessingActions.Continue;
+
 
   private FileContext(Path path, BasicFileAttributes FileAttrs, InputStream stream) throws IOException {
     this.path = path;
     this.fileAttrs = FileAttrs;
     this.stream = stream;
     this.fileContentBytes = null;
-    // cache ONLY SMALL files
-    if (this.fileAttrs.size()<50000000){
-      this.inMemoryFileContent  = true;
-      try {
-        this.fileContentBytes = IOUtils.toByteArray(stream);
-      } catch (Exception e) {
-        System.err.printf("Error while reading %s", path);
-        e.printStackTrace();
-      }
+    // Flag now to allow not null while getting the values for the first time
+    if (this.fileAttrs.size()<50000000) {
+        this.inMemoryFileContent  = true;
     }
+
     // this.inMemoryFileContent = null;
     // with: 11460 8244 8133 8227 (21599,15662,15520)
     // null: 8220 8219 8286 8227 (
@@ -68,7 +65,21 @@ public class FileContext {
     return this.path;
   }
 
+  /**
+   * Lazy approach to load contents in memory
+   * @return item content or null
+   */
   public byte[] getBytes() {
+    if (this.fileAttrs.size()<50000000 && fileContentBytes == null) {
+        //  cache ONLY SMALL files
+        this.inMemoryFileContent  = true;
+        try {
+          this.fileContentBytes = IOUtils.toByteArray(stream);
+        } catch (Exception e) {
+          System.err.printf("Error while reading %s", path);
+          e.printStackTrace();
+        }
+    }
     return fileContentBytes;
   }
 
@@ -86,5 +97,13 @@ public class FileContext {
   public boolean isFileContentInMemory(){
     return this.inMemoryFileContent;
   }
+
+  public void UpdateAction(ProcessingActions actionRecomendation) {
+    this.recomendedAction = actionRecomendation;
+  }
+
+  public ProcessingActions getRecomendedAction() {
+    return recomendedAction;
+  }  
 
 }

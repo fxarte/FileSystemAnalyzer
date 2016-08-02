@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.dscid.filesystemanalyzer.Analyzer;
 import com.dscid.filesystemanalyzer.FileContext;
+import com.dscid.filesystemanalyzer.App.ProcessFolder;
 import com.dscid.filesystemanalyzer.DB.DBLayer;
 import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
 
@@ -16,14 +17,16 @@ public enum ItemCore implements FileAnalyzer, DBSingleStorage {
     // dependencies are the names of the analyzers, 
     // the Analyzer loader in the API? will take care of providing the proper references
     private final Set<Class<? extends FileAnalyzer>> dependencies;
+    
 
     ItemCore() {
         this.DBInstance = DBLayer.getDbInstanceOf(ItemCore.class);
         this.dependencies = new LinkedHashSet<Class<? extends FileAnalyzer>>();
+        dependencies.add(ItemModifiedTimeStamp.class);
     }
 
     public void analyzeItem(FileContext context) {
-        DBInstance.updateValue(context.getPath().toString(), context.getPath().getParent().toString(), "F");
+      DBInstance.updateValue(context.getPath().toString(), context.getPath().getParent().toString(), "F");
     }
 
     @Override

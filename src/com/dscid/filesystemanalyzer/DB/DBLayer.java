@@ -221,6 +221,7 @@ public final class DBLayer implements AnalyzerStorage {
             conn = new SQLiteConnection(databasePath);
             _db = new DBLayer(PluginId);
             _db.Connection = conn;
+            DBInstances.put(plugin, _db);
         }
         else {
             conn = new SQLiteConnection(databasePath);
