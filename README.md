@@ -1,47 +1,29 @@
 # File System Analyzer
-Finds duplicate files and folders.
-Update provided settings.properties with the proper values.
+Goes through all the files and subfolders of the provided starting folder, extracts information and generate reports. 
+Currently supported:
++ Duplicates: files and folders.
+
 ##Usage:
-  watchDirectory: the folder to analyse
-  commands: Optional, use to create commands to be run to process the items, otherwise will just generate a list
-  logFolder= Optional, defaults to logs
-  logFile=O ptional, defaults to output.log
+Update provided settings.properties with the proper values:
+
+**Available options:**
+
+* `watchDirectory`: Folder to analyze, value: valid path to directory
+* `recurse`: whether to go deeper that the provided folder, recommended value: yes
+* `commandsRowOperations`: When the report is build, what command line associate the paths found
+* `skipProcessed`: <True|False> whether to ignore or not items already analyzed
+* `commandsOperationSkipRow`: <First|Last> whether to leave the last|first row on each group without command operation
+* `showBiggestItems`: <integer> how many items to show in the report
+
+### Run:
+
+```
+#!shell
+
+java -Djava.library.path="libs" -jar "FileSystemAnalyserEclipse.jar" 
+
+```
+
 
 ##Requirements:
 Java 1.8
-###Libraries:
-  + commons-io-2.4.jar
-  + sqlite4java.jar
-      * Windows:
-          + sqlite4java-win32-x64.dll
-          + sqlite4java-win32-x86.dll
-      * unix/linux
-          + libsqlite4java-linux-i386.so
-          + libsqlite4java-linux-amd64.so
-          + libsqlite4java-android-armv7.so
-      * OSX
-          + libsqlite4java-osx.jnilib
-          + libsqlite4java-osx-10.4.jnilib
-          + libsqlite4java-osx-ppc.jnilib
-  + tika-app-1.4.jar
-  
-  
-###run with:
-java -Djava.library.path="libs" -jar "FileSystemAnalyserEclipse.jar" 
-
-
-required libraries:
-  commons-io-2.4.jar
-  sqlite4java.jar
-    Windows:
-      sqlite4java-win32-x64.dll
-      sqlite4java-win32-x86.dll
-    unix/linux
-      libsqlite4java-linux-i386.so
-      libsqlite4java-linux-amd64.so
-      libsqlite4java-android-armv7.so
-    OSX
-      libsqlite4java-osx.jnilib
-      libsqlite4java-osx-10.4.jnilib
-      libsqlite4java-osx-ppc.jnilib
-  tika-app-1.4.jar
