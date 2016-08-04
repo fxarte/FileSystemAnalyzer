@@ -17,6 +17,7 @@ import com.dscid.filesystemanalyzer.Analyzer;
 import com.dscid.filesystemanalyzer.FileContext;
 import com.dscid.filesystemanalyzer.DB.DBLayer;
 import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -221,4 +222,13 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
     String sizeString = DBInstance.selectValueOf(path);
     return sizeString;
   }
+
+  public List<String> getChildren(String parent) {
+    return DBInstance.getChildren(parent);
+  }
+  public List<String> getDistinctHashes() {
+    return DBInstance.getDistinctValues();
+  }
+  
+  
 }

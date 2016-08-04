@@ -4,6 +4,7 @@ import com.dscid.filesystemanalyzer.Analyzer;
 import com.dscid.filesystemanalyzer.DB.DBLayer;
 import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
 import com.dscid.filesystemanalyzer.FileContext;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
@@ -36,7 +37,7 @@ public enum ItemSize implements FileAnalyzer, DBSingleStorage {
   public void analyzeItems(FileContext context) {
     // Long size = Files.size(context.getPath());
     String folderPath = context.getPath().toString();
-    String results = DBInstance.aggregateValuesByParent("sum", folderPath);
+    String results = DBInstance.sumValuesByParent(folderPath);
     Long sum = 0L;
     if (results != null) {
       sum = Long.parseLong(results);

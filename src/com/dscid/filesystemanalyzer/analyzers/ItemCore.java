@@ -1,6 +1,8 @@
 package com.dscid.filesystemanalyzer.analyzers;
 
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.dscid.filesystemanalyzer.Analyzer;
@@ -43,6 +45,13 @@ public enum ItemCore implements FileAnalyzer, DBSingleStorage {
     }
 
     public String getValueOf(String path) {
-        return DBInstance.selectValueOf(path);
+      return DBInstance.selectValueOf(path);
+    }
+
+    public Map<String, List<String>> getGroupedValues(int minCount) {
+      return DBInstance.selectGroupedValues(minCount);
+    }
+    public List<String> getChildren(String parent) {
+      return DBInstance.getChildren(parent);
     }
 }

@@ -15,6 +15,7 @@ public enum DataProcessorsAPI {
 
   Set<Processors> getDataProcessors() {
     pl.add(Duplicates.INSTANCE);
+    pl.add(Similarity.INSTANCE);
     return pl;
   }
 

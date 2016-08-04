@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,6 @@ import java.util.Set;
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
-
 import com.dscid.filesystemanalyzer.AnalyzerStorage;
 import com.dscid.filesystemanalyzer.App.ProcessFolder;
 
@@ -34,7 +34,7 @@ import com.dscid.filesystemanalyzer.App.ProcessFolder;
  *
  */
 public final class DBLayer implements AnalyzerStorage {
-
+    
     private static final Map<Class<? extends DBSingleStorage>, DBLayer> DBInstances = new HashMap<Class<? extends DBSingleStorage>, DBLayer>();
     private SQLiteConnection Connection = null;
 
@@ -116,11 +116,83 @@ public final class DBLayer implements AnalyzerStorage {
         }
     }
 
-    public String aggregateValuesByParent(String aggreateFunction, String parent) {
+    
+    public List<String> getChildren(String parent) {
+      List<String> results = new ArrayList<String>();
+
+      String hashedValuesSQL = "SELECT value FROM "+ this.mainTableName + " WHERE parent=? ";
+
+      SQLiteConnection conn = this.Connection;
+      try {
+          if (!conn.isOpen()) {
+              conn.open(true);
+          }
+
+          SQLiteStatement stmt = conn.prepare(hashedValuesSQL);
+          stmt.bind(1, parent);
+          
+          while (stmt.step()) {
+            results.add(stmt.columnString(0));
+          }
+      } catch (SQLiteException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+      }
+
+      return results;
+    }
+
+    public List<String> getDistinctValues() {
+      List<String> results = new ArrayList<String>();
+      String hashedValuesSQL = "SELECT DISTINCT value FROM "+ this.mainTableName;
+
+      SQLiteConnection conn = this.Connection;
+      try {
+          if (!conn.isOpen()) {
+              conn.open(true);
+          }
+
+          SQLiteStatement stmt = conn.prepare(hashedValuesSQL);
+          while (stmt.step()) {
+            results.add(stmt.columnString(0));
+          }
+      } catch (SQLiteException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+      }
+
+      return results;
+    }
+    
+    public String concatValuesByParent(String parent) {
+      String results = "";
+
+      String hashedValuesSQL = "SELECT group_concat(value, '|') FROM "+ this.mainTableName + " WHERE parent=? ";
+
+      SQLiteConnection conn = this.Connection;
+      try {
+          if (!conn.isOpen()) {
+              conn.open(true);
+          }
+
+          SQLiteStatement stmt = conn.prepare(hashedValuesSQL);
+          stmt.bind(1, parent);
+          while (stmt.step()) {
+              results = stmt.columnString(0);
+          }
+      } catch (SQLiteException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+      }
+
+      return results;
+    }
+
+    
+    public String sumValuesByParent(String parent) {
         String results = "";
 
-        String hashedValuesSQL = "SELECT sum(value) FROM "
-                + this.mainTableName + " WHERE parent=? ";
+        String hashedValuesSQL = "SELECT sum(value) FROM "+ this.mainTableName + " WHERE parent=? ";
 
         SQLiteConnection conn = this.Connection;
         try {
@@ -271,8 +343,7 @@ public final class DBLayer implements AnalyzerStorage {
      * @param fieldName
      * @return
      */
-    public static String selectInstanceValueOf(DBLayer dBInstance, String path,
-            String dBFieldName) {
+    public static String selectInstanceValueOf(DBLayer dBInstance, String path, String dBFieldName) {
        // System.out.println("dBInstance hascode " +dBInstance.hashCode());
 
         String getValueSQL = "SELECT " + dBFieldName + " FROM "
@@ -313,8 +384,7 @@ public final class DBLayer implements AnalyzerStorage {
      * @param dBFieldName
      * @return
      */
-    public static String selectInstanceValueOf(DBLayer dBInstance, Long id,
-            String dBFieldName) {
+    public static String selectInstanceValueOf(DBLayer dBInstance, Long id, String dBFieldName) {
         String SQLByID_SelectInstanceValueOf = "SELECT " + dBFieldName + " FROM "
                 + dBInstance.mainTableName + " WHERE ID=?";
         SQLiteConnection conn = dBInstance.Connection;
@@ -343,8 +413,7 @@ public final class DBLayer implements AnalyzerStorage {
         return ret;
     }
 
-    public static List<String> selectValuesOf(DBLayer dBInstance,
-            String dBFieldName, List<String> paths) {
+    public static List<String> selectValuesOf(DBLayer dBInstance, String dBFieldName, List<String> paths) {
         List<String> res = new ArrayList<String>();
         if (paths.size() == 0) {
             return res;
@@ -391,8 +460,7 @@ public final class DBLayer implements AnalyzerStorage {
      * @param value
      * @return
      */
-    private static void updateInstanceValueOf(DBLayer dBInstance, String path,
-            String parent, String value) {
+    private static void updateInstanceValueOf(DBLayer dBInstance, String path, String parent, String value) {
 
         String SQLString = "INSERT OR REPLACE INTO " + dBInstance.mainTableName
                 + " (value, path, parent) VALUES (?,?,?)";
@@ -429,8 +497,7 @@ public final class DBLayer implements AnalyzerStorage {
 
     }
 
-    private static String updateInstanceParentId(DBLayer dBInstance,
-            String path, String parentId) {
+    private static String updateInstanceParentId(DBLayer dBInstance, String path, String parentId) {
         String SQLString = "UPDATE " + dBInstance.mainTableName
                 + " SET parent=? WHERE path=?";
         String id = "";

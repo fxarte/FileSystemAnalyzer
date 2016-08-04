@@ -16,6 +16,8 @@ import java.util.Set;
 
 
 
+
+import com.dscid.filesystemanalyzer.App.ProcessFolder;
 import com.dscid.filesystemanalyzer.analyzers.FileAnalyzer;
 import com.dscid.filesystemanalyzer.analyzers.ItemModifiedTimeStamp;
 
@@ -31,6 +33,7 @@ public class SimpleObservableVisitor extends Observable implements
 	public FileVisitResult postVisitDirectory(Path dir, IOException arg1)
 			throws IOException {
 		BasicFileAttributes attrs  = Files.readAttributes(dir, BasicFileAttributes.class);
+		//TODO: Seems sensible to exclude the top dir: ProcessFolder.watchDirectory
 		System.out.println(dir.toString());
 		FileContext context = FileContext.valueOf(dir, attrs);
 		for (FileAnalyzer da : pluggins) {
