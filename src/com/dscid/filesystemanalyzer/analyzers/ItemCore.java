@@ -52,6 +52,19 @@ public enum ItemCore implements FileAnalyzer, DBSingleStorage {
       return DBInstance.selectGroupedValues(minCount);
     }
     public List<String> getChildren(String parent) {
-      return DBInstance.getChildren(parent);
+      return DBInstance.getChildrenValues(parent);
+    }
+    public List<String> getChildrenPaths(String parent) {
+      return DBInstance.getChildrenPaths(parent);
+    }
+    public int getValueInt(String path){
+      String type = getValueOf(path);
+      if (type.equals("F")) {
+        return 3;
+      } else if (type.equals("D")) {
+        return 5;
+      } else {
+        return 0;
+      }
     }
 }

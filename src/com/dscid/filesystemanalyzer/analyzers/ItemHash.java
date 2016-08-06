@@ -224,7 +224,7 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
   }
 
   public List<String> getChildren(String parent) {
-    return DBInstance.getChildren(parent);
+    return DBInstance.getChildrenValues(parent);
   }
   public List<String> getDistinctHashes() {
     return DBInstance.getDistinctValues();

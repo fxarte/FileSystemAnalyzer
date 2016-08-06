@@ -116,11 +116,15 @@ public final class DBLayer implements AnalyzerStorage {
         }
     }
 
-    
-    public List<String> getChildren(String parent) {
+    /**
+     * Returns all children paths for a given parent 
+     * @param parent
+     * @return
+     */
+    public List<String> getChildrenPaths(String parent) {
       List<String> results = new ArrayList<String>();
 
-      String hashedValuesSQL = "SELECT value FROM "+ this.mainTableName + " WHERE parent=? ";
+      String hashedValuesSQL = "SELECT path FROM "+ this.mainTableName + " WHERE parent=? ";
 
       SQLiteConnection conn = this.Connection;
       try {
@@ -139,6 +143,36 @@ public final class DBLayer implements AnalyzerStorage {
           e1.printStackTrace();
       }
 
+      return results;
+    }
+    
+    /***
+     * Returns all children values for a given parent
+     * @param parent
+     * @return
+     */
+    public List<String> getChildrenValues(String parent) {
+      List<String> results = new ArrayList<String>();
+      
+      String hashedValuesSQL = "SELECT value FROM "+ this.mainTableName + " WHERE parent=? ";
+      
+      SQLiteConnection conn = this.Connection;
+      try {
+        if (!conn.isOpen()) {
+          conn.open(true);
+        }
+        
+        SQLiteStatement stmt = conn.prepare(hashedValuesSQL);
+        stmt.bind(1, parent);
+        
+        while (stmt.step()) {
+          results.add(stmt.columnString(0));
+        }
+      } catch (SQLiteException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+      
       return results;
     }
 
