@@ -1,12 +1,5 @@
 package com.dscid.filesystemanalyzer.analyzers;
 
-import com.dscid.filesystemanalyzer.Analyzer;
-import com.dscid.filesystemanalyzer.DB.DBLayer;
-import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
-import com.dscid.filesystemanalyzer.FileContext;
-
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -14,6 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import com.dscid.filesystemanalyzer.Analyzer;
+import com.dscid.filesystemanalyzer.FileContext;
+import com.dscid.filesystemanalyzer.DB.DBLayer;
+import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
 
 public enum ItemSize implements FileAnalyzer, DBSingleStorage {
 

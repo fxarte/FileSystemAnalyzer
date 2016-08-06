@@ -8,16 +8,15 @@
  */
 package com.dscid.filesystemanalyzer.analyzers;
 
-import com.dscid.filesystemanalyzer.DB.DBLayer;
-import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
-import com.dscid.filesystemanalyzer.FileContext;
-import com.dscid.filesystemanalyzer.PrimeRepresentation;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
+
+import com.dscid.filesystemanalyzer.FileContext;
+import com.dscid.filesystemanalyzer.PrimeRepresentation;
+import com.dscid.filesystemanalyzer.DB.DBLayer;
+import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
 
 /**
  *

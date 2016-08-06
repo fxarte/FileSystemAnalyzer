@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.dscid.filesystemanalyzer.DB.DBLayer;
-import com.dscid.filesystemanalyzer.DB.DBLayerException;
 import com.dscid.filesystemanalyzer.analyzers.ItemCore;
 import com.dscid.filesystemanalyzer.analyzers.ItemHash;
 

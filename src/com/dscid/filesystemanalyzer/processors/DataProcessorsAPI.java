@@ -2,7 +2,6 @@ package com.dscid.filesystemanalyzer.processors;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum DataProcessorsAPI {

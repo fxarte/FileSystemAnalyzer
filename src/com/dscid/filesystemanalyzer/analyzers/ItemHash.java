@@ -18,10 +18,6 @@ import com.dscid.filesystemanalyzer.FileContext;
 import com.dscid.filesystemanalyzer.DB.DBLayer;
 import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
 
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-
 public enum ItemHash implements FileAnalyzer, DBSingleStorage {
 
   INSTANCE;

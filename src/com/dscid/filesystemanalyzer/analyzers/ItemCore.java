@@ -7,7 +7,6 @@ import java.util.Set;
 
 import com.dscid.filesystemanalyzer.Analyzer;
 import com.dscid.filesystemanalyzer.FileContext;
-import com.dscid.filesystemanalyzer.App.ProcessFolder;
 import com.dscid.filesystemanalyzer.DB.DBLayer;
 import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
 

@@ -1,7 +1,6 @@
 package com.dscid.filesystemanalyzer.analyzers;
 
 import com.dscid.filesystemanalyzer.FileContext;
-import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
 
 public enum TikaAnalyzer implements FileAnalyzer {
   INSTANCE;

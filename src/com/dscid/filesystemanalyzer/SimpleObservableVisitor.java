@@ -1,8 +1,10 @@
 package com.dscid.filesystemanalyzer;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -13,12 +15,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Set;
 
-import com.dscid.filesystemanalyzer.App.ProcessFolder;
 import com.dscid.filesystemanalyzer.analyzers.FileAnalyzer;
 import com.dscid.filesystemanalyzer.analyzers.ItemModifiedTimeStamp;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 
 public class SimpleObservableVisitor extends Observable implements FileVisitor<Path> {
 

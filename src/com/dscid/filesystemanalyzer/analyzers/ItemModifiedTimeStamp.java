@@ -2,7 +2,6 @@ package com.dscid.filesystemanalyzer.analyzers;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import com.dscid.filesystemanalyzer.FileContext;
 import com.dscid.filesystemanalyzer.ProcessingActions;

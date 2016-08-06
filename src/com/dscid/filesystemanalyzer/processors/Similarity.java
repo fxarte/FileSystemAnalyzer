@@ -7,16 +7,11 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
-import jdk.nashorn.internal.runtime.ECMAException;
-
 import com.dscid.filesystemanalyzer.App.ProcessFolder;
-import com.dscid.filesystemanalyzer.DB.DBLayer;
 import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
 import com.dscid.filesystemanalyzer.analyzers.ItemCore;
 import com.dscid.filesystemanalyzer.analyzers.ItemHash;
