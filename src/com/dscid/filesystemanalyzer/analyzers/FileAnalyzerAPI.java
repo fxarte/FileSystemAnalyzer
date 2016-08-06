@@ -8,23 +8,24 @@ import java.util.Set;
 // The methods will be static and public, the only ones to be public in the package?
 // Or receives request for analysis using File, Analyzer parameters also through static calls
 public enum FileAnalyzerAPI {
-	INSTANCE;
-	Set<FileAnalyzer> al = new LinkedHashSet<FileAnalyzer>();
-	public Set<FileAnalyzer> getAnalyzerProviders() {
-		
-	  //These are required for System functionality
-//	  al.add(ItemModifiedTimeStamp.INSTANCE);
-		
-	  al.add(ItemCore.INSTANCE);
-		al.add(ItemSize.INSTANCE);
-		al.add(ItemHash.INSTANCE);
-		return al;
-	}
-	
-	/**
-	 * register the providers 
-	 */
-	void setAnalyzerProviders() {
-		
-	}
+  INSTANCE;
+  Set<FileAnalyzer> al = new LinkedHashSet<FileAnalyzer>();
+
+  public Set<FileAnalyzer> getAnalyzerProviders() {
+
+    // These are required for System functionality
+    // al.add(ItemModifiedTimeStamp.INSTANCE);
+
+    al.add(ItemCore.INSTANCE);
+    al.add(ItemSize.INSTANCE);
+    al.add(ItemHash.INSTANCE);
+    return al;
+  }
+
+  /**
+   * register the providers
+   */
+  void setAnalyzerProviders() {
+
+  }
 }

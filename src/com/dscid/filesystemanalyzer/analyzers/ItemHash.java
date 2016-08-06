@@ -64,9 +64,9 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
      * = new FileInputStream(file.toFile()); }
      */
     byte[] hash;
-    //True if it is small file and can be cached, 
+    // True if it is small file and can be cached,
     // otherwise we'll need to processed through a buffer
-    if (context.isFileContentInMemory()){
+    if (context.isFileContentInMemory()) {
       byte[] bytes = context.getBytes();
       hash = digest.digest(bytes);
     } else {
@@ -226,9 +226,9 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
   public List<String> getChildren(String parent) {
     return DBInstance.getChildrenValues(parent);
   }
+
   public List<String> getDistinctHashes() {
     return DBInstance.getDistinctValues();
   }
-  
-  
+
 }

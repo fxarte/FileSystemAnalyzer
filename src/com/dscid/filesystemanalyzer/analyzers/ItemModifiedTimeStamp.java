@@ -15,21 +15,23 @@ public enum ItemModifiedTimeStamp implements FileAnalyzer, DBSingleStorage {
   INSTANCE;
   private final DBLayer DBInstance;
   private final Set<Class<? extends FileAnalyzer>> dependencies;
-//  private static final Logger logger = Logger.getLogger(ItemModifiedTimeStamp.class.getName());
-  
+
+  // private static final Logger logger =
+  // Logger.getLogger(ItemModifiedTimeStamp.class.getName());
+
   private ItemModifiedTimeStamp() {
     DBInstance = DBLayer.getDbInstanceOf(ItemModifiedTimeStamp.class);
     dependencies = new LinkedHashSet<Class<? extends FileAnalyzer>>();
-//    dependencies.add(ItemCore.class);
+    // dependencies.add(ItemCore.class);
   }
 
   @Override
   public void analyzeItem(FileContext context) {
     long value = context.getFileAttributes().lastModifiedTime().toMillis();
     String path = context.getPath().toString();
-    if (ProcessFolder.skipProcessed){
+    if (ProcessFolder.skipProcessed) {
       String oldTS = getValueOf(path);
-      if (oldTS != null && !oldTS.isEmpty()){
+      if (oldTS != null && !oldTS.isEmpty()) {
         long db_val = Long.valueOf(oldTS);
         if (db_val == value) {
           context.UpdateAction(ProcessingActions.Skip);
@@ -56,7 +58,7 @@ public enum ItemModifiedTimeStamp implements FileAnalyzer, DBSingleStorage {
   public String getValueOf(String path) {
     // TODO: forgot behavior with dirs
     String value = DBInstance.selectValueOf(path);
-       
+
     return value;
   }
 }

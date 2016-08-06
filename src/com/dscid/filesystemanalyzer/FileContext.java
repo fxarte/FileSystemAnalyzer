@@ -22,15 +22,14 @@ public class FileContext {
   private boolean inMemoryFileContent = false;
   private ProcessingActions recomendedAction = ProcessingActions.Continue;
 
-
   private FileContext(Path path, BasicFileAttributes FileAttrs, InputStream stream) throws IOException {
     this.path = path;
     this.fileAttrs = FileAttrs;
     this.stream = stream;
     this.fileContentBytes = null;
     // Flag now to allow not null while getting the values for the first time
-    if (this.fileAttrs.size()<50000000) {
-        this.inMemoryFileContent  = true;
+    if (this.fileAttrs.size() < 50000000) {
+      this.inMemoryFileContent = true;
     }
 
     // this.inMemoryFileContent = null;
@@ -67,18 +66,19 @@ public class FileContext {
 
   /**
    * Lazy approach to load contents in memory
+   * 
    * @return item content or null
    */
   public byte[] getBytes() {
-    if (this.fileAttrs.size()<50000000 && fileContentBytes == null) {
-        //  cache ONLY SMALL files
-        this.inMemoryFileContent  = true;
-        try {
-          this.fileContentBytes = IOUtils.toByteArray(stream);
-        } catch (Exception e) {
-          System.err.printf("Error while reading %s", path);
-          e.printStackTrace();
-        }
+    if (this.fileAttrs.size() < 50000000 && fileContentBytes == null) {
+      // cache ONLY SMALL files
+      this.inMemoryFileContent = true;
+      try {
+        this.fileContentBytes = IOUtils.toByteArray(stream);
+      } catch (Exception e) {
+        System.err.printf("Error while reading %s", path);
+        e.printStackTrace();
+      }
     }
     return fileContentBytes;
   }
@@ -94,7 +94,8 @@ public class FileContext {
   void closeResource() throws IOException {
     this.stream.close();
   }
-  public boolean isFileContentInMemory(){
+
+  public boolean isFileContentInMemory() {
     return this.inMemoryFileContent;
   }
 
@@ -104,6 +105,6 @@ public class FileContext {
 
   public ProcessingActions getRecomendedAction() {
     return recomendedAction;
-  }  
+  }
 
 }

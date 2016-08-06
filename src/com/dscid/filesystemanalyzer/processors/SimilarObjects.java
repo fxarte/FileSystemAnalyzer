@@ -14,11 +14,17 @@ import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
  *
  * @author felix
  */
-public class SimilarObjects  implements Processors, DBSingleStorage {
+public class SimilarObjects implements Processors, DBSingleStorage {
 
   @Override
   public void analyzeItems() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    throw new UnsupportedOperationException("Not supported yet."); // To change
+                                                                   // body of
+                                                                   // generated
+                                                                   // methods,
+                                                                   // choose
+                                                                   // Tools |
+                                                                   // Templates.
   }
-  
+
 }

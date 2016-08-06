@@ -23,7 +23,8 @@ public enum DuplicateFolderTrees implements Processors {
 
   public void analyzeItems() {
     Map<String, List<String>> duplicateHashedFiles = new HashMap<String, List<String>>();
-		//TODO: Add the elements to analyze here from the Duplictae processor fileSystemAnalyzer.DB
+    // TODO: Add the elements to analyze here from the Duplictae processor
+    // fileSystemAnalyzer.DB
     // if it is a folder check if it is part of a duplicate tree
     Map<String, List<String>> duplicateTrees = detectDuplicateTrees(duplicateHashedFiles);
     System.out.print(duplicateTrees);
@@ -33,22 +34,26 @@ public enum DuplicateFolderTrees implements Processors {
     Map<String, List<String>> duplicateTrees = null;
     List<String> treeCommonParent = null;
     Map<String, Set<String>> tree = new HashMap<String, Set<String>>();
-    //paths per hash
-    Map<String, Set<String>> treeCommonParentSet = new HashMap<String, Set<String>>();;
+    // paths per hash
+    Map<String, Set<String>> treeCommonParentSet = new HashMap<String, Set<String>>();
+    ;
     System.out.format("----------------------------------------------------------%n");
     System.out.format("Checking trees%n");
     for (Map.Entry<String, List<String>> hashedGroups : duplicateHashedFiles.entrySet()) {
       String hash = hashedGroups.getKey();
       List<String> paths = hashedGroups.getValue();
-			// if all paths are of the same type and are folders, and have the
+      // if all paths are of the same type and are folders, and have the
       // same size, the proceed
       if (getPathsType(paths).equals("D") && sizesAreEqual(paths)) {
         if (true) {
 
         }
         if (paths.size() >= 2) {
-					//treeCommonParent = getTreeCommonParents(paths.get(0), paths.get(1));
-          //System.out.format("Paths: '%s' and '%s' have parents:%n '%s' and '%s' %n", paths.get(0), paths.get(1), treeCommonParent.get(0), treeCommonParent.get(1));
+          // treeCommonParent = getTreeCommonParents(paths.get(0),
+          // paths.get(1));
+          // System.out.format("Paths: '%s' and '%s' have parents:%n '%s' and '%s' %n",
+          // paths.get(0), paths.get(1), treeCommonParent.get(0),
+          // treeCommonParent.get(1));
           Set<String> ids = new HashSet<String>();
           for (String path : paths) {
             String id = DBLayer.selectInstanceValueOf(DBLayer.getDbInstanceOf(ItemCore.class), path, "ID");
@@ -67,11 +72,11 @@ public enum DuplicateFolderTrees implements Processors {
             tree.put(parentIds, ids);
           }
 
-          //not working, still confusing. and I'm hungry and sleepy
+          // not working, still confusing. and I'm hungry and sleepy
           for (String id : t) {
             Long _id = Long.parseLong(id);
-						//the aprent of the starting folder is always Zero
-            //TODO: come up with a better solution
+            // the aprent of the starting folder is always Zero
+            // TODO: come up with a better solution
             if (_id > 0) {
               String _path = DBLayer.selectInstanceValueOf(DBLayer.getDbInstanceOf(ItemCore.class), _id, "path");
               String _hash = DBLayer.selectInstanceValueOf(DBLayer.getDbInstanceOf(ItemHash.class), _path, "value");
@@ -95,7 +100,7 @@ public enum DuplicateFolderTrees implements Processors {
     Map<String, Set<String>> dupParents = new HashMap<String, Set<String>>();
     for (Map.Entry<String, Set<String>> entry : tree.entrySet()) {
       String key = entry.getKey();
-      //skip multiple parents for now
+      // skip multiple parents for now
       if (!key.contains("|")) {
         Set<String> value = entry.getValue();
         String _ParentPath = DBLayer.selectInstanceValueOf(DBLayer.getDbInstanceOf(ItemCore.class), Long.parseLong(key), "path");
@@ -124,7 +129,7 @@ public enum DuplicateFolderTrees implements Processors {
       }
     }
 
-    //System.out.print(treeCommonParent);
+    // System.out.print(treeCommonParent);
     return duplicateTrees;
   }
 
@@ -167,15 +172,16 @@ public enum DuplicateFolderTrees implements Processors {
       parentIds.add(parentId);
     }
 
-		// Finding common ancestors: 3 options: 
-    //1 no common parent at all, all different: duplicateParents
-    //2 unique parent, all equals: 
-    //3 further analysis, mixed: set.size != list.size and set.size>=1 and list.size=n>=3
+    // Finding common ancestors: 3 options:
+    // 1 no common parent at all, all different: duplicateParents
+    // 2 unique parent, all equals:
+    // 3 further analysis, mixed: set.size != list.size and set.size>=1 and
+    // list.size=n>=3
     if (duplicateParents.size() == 0) {
-			// no parents in common, stop and return parent Set
+      // no parents in common, stop and return parent Set
       // OR
       // all have the same parent. Stop and return parent
-      //return parentIdSet;
+      // return parentIdSet;
       return new HashSet<String>(parentIds);
     } else if (duplicateParents.size() == 1) {
       return new HashSet<String>(duplicateParents.keySet());
@@ -185,19 +191,19 @@ public enum DuplicateFolderTrees implements Processors {
   }
 
   private static List<String> getTreeCommonParents(String path1, String path2) {
-		//D:\TEMP\duplitest\containers\MOV02105.AVI === > 3075
-    //3075 ====> D:\TEMP\duplitest\containers
+    // D:\TEMP\duplitest\containers\MOV02105.AVI === > 3075
+    // 3075 ====> D:\TEMP\duplitest\containers
     String parent1Id = DBLayer.selectInstanceValueOf(DBLayer.getDbInstanceOf(ItemCore.class), path1, "parent");
     String parent1Path = DBLayer.selectInstanceValueOf(DBLayer.getDbInstanceOf(ItemCore.class), Long.parseLong(parent1Id), "path");
 
     String parent2Id = DBLayer.selectInstanceValueOf(DBLayer.getDbInstanceOf(ItemCore.class), path2, "parent");
     String parent2Path = DBLayer.selectInstanceValueOf(DBLayer.getDbInstanceOf(ItemCore.class), Long.parseLong(parent2Id), "path");
 
-    //if we end up in the same folder, return the children  
+    // if we end up in the same folder, return the children
     if (parent1Id.equals(parent2Id)) {
       return new ArrayList<String>(Arrays.asList(parent1Path, parent2Path));
     } else {
-      //get parent's hashes and if equal keep going up
+      // get parent's hashes and if equal keep going up
       String hash1 = DBLayer.getDbInstanceOf(ItemHash.class).selectValueOf(parent1Path);
       String hash2 = DBLayer.getDbInstanceOf(ItemHash.class).selectValueOf(parent2Path);
       if (hash1.equals(hash2)) {

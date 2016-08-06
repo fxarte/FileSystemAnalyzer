@@ -25,11 +25,11 @@ import com.dscid.filesystemanalyzer.utils.ValueComparator;
 
 public enum Similarity implements Processors, DBSingleStorage {
   INSTANCE;
-//  private final DBLayer DBInstance;
+  // private final DBLayer DBInstance;
 
-//  private Similarity() {
-//    DBInstance = DBLayer.getDbInstanceOf(this.getClass());
-//  }
+  // private Similarity() {
+  // DBInstance = DBLayer.getDbInstanceOf(this.getClass());
+  // }
 
   @Override
   public void analyzeItems() {
@@ -39,7 +39,7 @@ public enum Similarity implements Processors, DBSingleStorage {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
+
     // for each folder, build a "vector" based on its children hashes
     // 1 Get all folders
     Map<String, List<String>> entrySet = ItemCore.INSTANCE.getGroupedValues(1);
@@ -53,7 +53,7 @@ public enum Similarity implements Processors, DBSingleStorage {
       List<String> children = ItemCore.INSTANCE.getChildrenPaths(dir);
       List<Integer> vec = new ArrayList<Integer>();
       long dirSize = ItemSize.INSTANCE.getValueOf(dir);
-      int x = (int)(dirSize >> 32);
+      int x = (int) (dirSize >> 32);
       int y = (int) dirSize;
       vec.add(x);
       vec.add(y);
@@ -61,14 +61,14 @@ public enum Similarity implements Processors, DBSingleStorage {
         vec.addAll(new ArrayList<>(Collections.nCopies(hasheshDictionary.size(), 0)));
       }
 
-      else{
+      else {
         List<Integer> hashBinary = new ArrayList<>(Collections.nCopies(hasheshDictionary.size(), 0));
         for (String child : children) {
-          // "Word" embedding 
-          String childHash  = ItemHash.INSTANCE.getValueOf(child);
+          // "Word" embedding
+          String childHash = ItemHash.INSTANCE.getValueOf(child);
 
           int i = hasheshDictionary.indexOf(childHash);
-          if (i>-1) {
+          if (i > -1) {
             hashBinary.set(i, 1);
           }
 
@@ -85,32 +85,32 @@ public enum Similarity implements Processors, DBSingleStorage {
     ValueComparator bvc = new ValueComparator(results);
     TreeMap<String, Double> sorted_results = new TreeMap<String, Double>(bvc);
 
-    for (int i=0; i < dirs.size(); i++ ){
-      for (int k=i+1; k < dirs.size(); k++ ){
-        String keyX =  dirs.get(i);
+    for (int i = 0; i < dirs.size(); i++) {
+      for (int k = i + 1; k < dirs.size(); k++) {
+        String keyX = dirs.get(i);
         List<Integer> vectorA = vectorList.get(keyX);
-        String keyY =  dirs.get(k);
+        String keyY = dirs.get(k);
         List<Integer> vectorB = vectorList.get(keyY);
-        
+
         if (vectorA.size() != vectorB.size()) {
           System.err.println("salkjdlkadjlkasj");
         }
-        
+
         double similarity = cosineSimilarity(vectorA, vectorB);
-        results.put(keyX+"|"+keyY, similarity);
+        results.put(keyX + "|" + keyY, similarity);
       }
     }
     sorted_results.putAll(results);
-    for (Map.Entry<String, Double> result : sorted_results.entrySet()){
-      System.out.println(String.format("%.2f=%s",result.getValue(), result.getKey()));
+    for (Map.Entry<String, Double> result : sorted_results.entrySet()) {
+      System.out.println(String.format("%.2f=%s", result.getValue(), result.getKey()));
     }
   }
-  
+
   private void _generateSimilarityMatrix(Map<String, List<Integer>> vectorList) {
     TreeMap<String, Double> results = new TreeMap<String, Double>();
     ValueComparator bvc = new ValueComparator(results);
     TreeMap<String, Double> sorted_results = new TreeMap<String, Double>(bvc);
-    
+
     for (Map.Entry<String, List<Integer>> entryA : vectorList.entrySet()) {
       String dirA = entryA.getKey();
       List<Integer> vectorListA = entryA.getValue();
@@ -119,11 +119,11 @@ public enum Similarity implements Processors, DBSingleStorage {
         if (dirA.equals(dirB)) {
           continue;
         }
-        //Skip the other have of the matrix
+        // Skip the other have of the matrix
         if (results.containsKey(dirB + "|" + dirA)) {
           continue;
         }
-        
+
         String key = dirA + "|" + dirB;
         List<Integer> vectorListB = entryB.getValue();
         double similarity = cosineSimilarity(vectorListA, vectorListB);
@@ -131,15 +131,16 @@ public enum Similarity implements Processors, DBSingleStorage {
       }
     }
     sorted_results.putAll(results);
-//    System.out.println(sorted_results);
-    for (Map.Entry<String, Double> result : sorted_results.entrySet()){
-      System.out.println(String.format("%.2f=%s",result.getValue(), result.getKey()));
+    // System.out.println(sorted_results);
+    for (Map.Entry<String, Double> result : sorted_results.entrySet()) {
+      System.out.println(String.format("%.2f=%s", result.getValue(), result.getKey()));
     }
   }
 
   /**
-   *  The function assumes that the two vectors have the same length.
-   *  @see http://stackoverflow.com/a/22913525
+   * The function assumes that the two vectors have the same length.
+   * 
+   * @see http://stackoverflow.com/a/22913525
    * @param vectorA
    * @param vectorB
    * @return
@@ -149,28 +150,23 @@ public enum Similarity implements Processors, DBSingleStorage {
     Integer[] vectorB = null;
     int sizeA = vectorListA.size();
     int sizeB = vectorListB.size();
-    
-    //Make vectors the same size by padding with zeros to the right the smaller one
+
+    // Make vectors the same size by padding with zeros to the right the smaller
+    // one
     if (sizeA != sizeB) {
-//      vectorListB.addAll(new ArrayList<Integer>(Collections.nCopies(sizeA-sizeB, 0)));
+      // vectorListB.addAll(new
+      // ArrayList<Integer>(Collections.nCopies(sizeA-sizeB, 0)));
       System.err.println("salkjdlkadjlkasj");
     }
     /*
-    else if (sizeA < sizeB) {
-      vectorListA.addAll(new ArrayList<Integer>(Collections.nCopies(sizeB-sizeA, 0)));
-    }
-    Set<Integer> setA = new HashSet<Integer>(vectorListA);
-    Set<Integer> setB = new HashSet<Integer>(vectorListB);
-    //This is for empty folders vectors
-    if (setA.size()==1 && setB.size() == 1) {
-      return 1.0;
-    } else if (setA.size()==1) {
-      vectorListA.add(0,1);
-      vectorListB.add(0);
-    } else if (setB.size()==1) {
-      vectorListB.add(0,1);
-      vectorListA.add(0);
-    } */
+     * else if (sizeA < sizeB) { vectorListA.addAll(new
+     * ArrayList<Integer>(Collections.nCopies(sizeB-sizeA, 0))); } Set<Integer>
+     * setA = new HashSet<Integer>(vectorListA); Set<Integer> setB = new
+     * HashSet<Integer>(vectorListB); //This is for empty folders vectors if
+     * (setA.size()==1 && setB.size() == 1) { return 1.0; } else if
+     * (setA.size()==1) { vectorListA.add(0,1); vectorListB.add(0); } else if
+     * (setB.size()==1) { vectorListB.add(0,1); vectorListA.add(0); }
+     */
     vectorA = vectorListA.toArray(new Integer[vectorListA.size()]);
     vectorB = vectorListB.toArray(new Integer[vectorListB.size()]);
     double dotProduct = 0.0;

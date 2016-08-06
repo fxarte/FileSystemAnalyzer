@@ -1,8 +1,8 @@
 package com.dscid.filesystemanalyzer;
 
 public enum extend {
-	INSTANCE;
-	String buildID(Class c) {
-		return "";
-	}
+  INSTANCE;
+  String buildID(Class c) {
+    return "";
+  }
 }

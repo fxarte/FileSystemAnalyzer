@@ -62,7 +62,7 @@ public class ProcessFolder {
   private boolean trace = true;
   public static final Boolean refreshDB = skipProcessed;
   private static final Logger logger = Logger.getLogger(ProcessFolder.class.getName());
-  
+
   private static void loadProperties() {
     Properties prop = new Properties();
     InputStream input = null;
@@ -82,7 +82,6 @@ public class ProcessFolder {
       commandsOperationSkipRow = prop.getProperty("commandsOperationSkipRow", "last");
       showBiggestItems = Integer.valueOf(prop.getProperty("showBiggestItems", "-1"));
       skipProcessed = Boolean.valueOf(prop.getProperty("skipProcessed", "False"));
-      
 
       logFolder = prop.getProperty("logFolder");
       logFile = logFolder + "/" + prop.getProperty("logFile");
@@ -90,22 +89,18 @@ public class ProcessFolder {
       File wf = new File(watchDirectoryPropertyValue);
       if (wf.exists() && wf.isDirectory()) {
         watchDirectory = watchDirectoryPropertyValue;
-      }
-      else {
+      } else {
         String exceptionMessage = String.format("The provided folder:<%s> is not valid folder or the app has no access", watchDirectoryPropertyValue);
         throw new IllegalArgumentException(exceptionMessage);
       }
 
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       ex.printStackTrace();
-    }
-    finally {
+    } finally {
       if (input != null) {
         try {
           input.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
           e.printStackTrace();
         }
       }
@@ -126,8 +121,7 @@ public class ProcessFolder {
       Path prev = keys.get(key);
       if (prev == null) {
         System.out.format("register: %s\n", dir);
-      }
-      else {
+      } else {
         if (!dir.equals(prev)) {
           System.out.format("update: %s -> %s\n", prev, dir);
         }
@@ -149,8 +143,7 @@ public class ProcessFolder {
     try {
       // register directory and sub-directories
       Files.walkFileTree(start, new SimpleObservableVisitor());
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       System.err.println(ex);
     }
   }
@@ -169,8 +162,7 @@ public class ProcessFolder {
       registerAll(dir);
       Date t1 = new Date();
       System.out.format("%nDone. (%s ms) %n", (t1.getTime() - t0.getTime()));
-    }
-    else {
+    } else {
       register(dir);
     }
 
@@ -188,8 +180,7 @@ public class ProcessFolder {
       WatchKey key;
       try {
         key = watcher.take();
-      }
-      catch (InterruptedException x) {
+      } catch (InterruptedException x) {
         return;
       }
 
@@ -274,24 +265,21 @@ public class ProcessFolder {
     Boolean refreshFileData = ProcessFolder.refreshDB;
     try {
       instantiateAnalizers();
-    }
-    catch (NoSuchMethodException | SecurityException | ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+    } catch (NoSuchMethodException | SecurityException | ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
       System.err.println("An exception occur, these are the details" + ex.getMessage());
-    }
-    catch (NoSuchFieldException e) {
+    } catch (NoSuchFieldException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
     // register directory and process its events
     Path dir = Paths.get(watchDirectory);
-    if (/*refreshFileData && */ Files.isWritable(dir)) {
+    if (/* refreshFileData && */Files.isWritable(dir)) {
       System.out.println("Analyzing folder " + watchDirectory);
       ProcessFolder p = new ProcessFolder(dir, recursive);
       System.out.println("Start processing folder " + watchDirectory);
       processProcessed();
       // p.processEvents();
-    }
-    else {
+    } else {
       System.err.println("Cannot access the folder '" + watchDirectory + "' for processing");
     }
 
@@ -308,8 +296,7 @@ public class ProcessFolder {
     new File(logFolder).mkdirs();
     try {
       System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), true));
-    }
-    catch (FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }

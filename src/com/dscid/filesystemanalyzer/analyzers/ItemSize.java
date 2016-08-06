@@ -66,8 +66,7 @@ public enum ItemSize implements FileAnalyzer, DBSingleStorage {
     long size = 0L;
     if (sizeString != null && !sizeString.trim().equals("")) {
       size = Long.parseLong(sizeString);
-    }
-    else {
+    } else {
       String m = String.format("null or empty size for path %s.", path);
       System.out.println(m);
     }
@@ -82,8 +81,7 @@ public enum ItemSize implements FileAnalyzer, DBSingleStorage {
       String sizeString = entry.getKey();
       if (sizeString != null && !sizeString.trim().equals("")) {
         size = Long.parseLong(sizeString);
-      }
-      else {
+      } else {
         String m = "Null or empty string size found during processing grouped sizes";
         System.out.println(m);
       }

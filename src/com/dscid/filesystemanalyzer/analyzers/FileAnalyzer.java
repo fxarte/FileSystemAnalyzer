@@ -9,7 +9,8 @@ import com.dscid.filesystemanalyzer.DB.DBLayer;
 /**
  * @author felix
  */
-public interface FileAnalyzer extends Analyzer<FileContext, FileContext>{
-	void analyzeItem(FileContext context);
-	void analyzeItems(FileContext context);
+public interface FileAnalyzer extends Analyzer<FileContext, FileContext> {
+  void analyzeItem(FileContext context);
+
+  void analyzeItems(FileContext context);
 }

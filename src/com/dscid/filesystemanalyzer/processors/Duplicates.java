@@ -36,6 +36,7 @@ public enum Duplicates implements Processors, DBSingleStorage {
   // private final DBLayer DBInstance;
 
   private static final Logger logger = Logger.getLogger(Duplicates.class.getName());
+
   private Duplicates() {
     // DBInstance = DBLayer.getDbInstanceOf(Duplicates.class);
   }
@@ -47,14 +48,13 @@ public enum Duplicates implements Processors, DBSingleStorage {
   @Override
   public void analyzeItems() {
     StringBuilder out = new StringBuilder();
-    String humanBytes="";
+    String humanBytes = "";
     logger.info(String.format("%s processing Duplicates ... ", ProcessFolder.commandsComment));
     System.out.println(String.format("%s processing Duplicates ... ", ProcessFolder.commandsComment));
-    
+
     try {
       System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/" + ProcessFolder.commandsOutPut)), true));
-    }
-    catch (FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
@@ -66,31 +66,32 @@ public enum Duplicates implements Processors, DBSingleStorage {
     // group,
     // for instace 2 empty folder that are not part of similar tress at all.
     // May be is best to leav it as is, as clean the FS iteratively
-    
-    //Loop types: Directories and Files for now
+
+    // Loop types: Directories and Files for now
     for (Map.Entry<String, Map<Long, Map<String, List<String>>>> entry : groupedSizes.entrySet()) {
       String groupType = entry.getKey();
       out.append(String.format("%s Type: %s\n", ProcessFolder.commandsComment, groupType));
       Map<Long, Map<String, List<String>>> sortedBySizeGroup = entry.getValue();
-      
+
       // Loop through the first 10 biggest sizes in decreasing order
       int c = 0;
       for (Map.Entry<Long, Map<String, List<String>>> hashedPaths : sortedBySizeGroup.entrySet()) {
-          if (ProcessFolder.showBiggestItems>0) {
-            if (c >= ProcessFolder.showBiggestItems) break;
-          }
-        c ++;
+        if (ProcessFolder.showBiggestItems > 0) {
+          if (c >= ProcessFolder.showBiggestItems)
+            break;
+        }
+        c++;
         Long groupSize = hashedPaths.getKey();
-        
+
         humanBytes = FileUtils.byteCountToDisplaySize(groupSize);
         out.append(String.format("%s Item: %d  Size: %s ", ProcessFolder.commandsComment, c, humanBytes));
-        
+
         for (Map.Entry<String, List<String>> hashedValues : hashedPaths.getValue().entrySet()) {
           String groupHash = hashedValues.getKey();
           out.append(String.format("Hash: %s\n", groupHash));
           int operationCount = 0;
           int skipRowOperation = ("first".equals(ProcessFolder.commandsOperationSkipRow)) ? 0 : hashedValues.getValue().size() - 1;
-          
+
           // Loop through items with equal hash code
           for (String path : hashedValues.getValue()) {
             // TODO from path, get type and size
@@ -99,16 +100,16 @@ public enum Duplicates implements Processors, DBSingleStorage {
             // operation
             if (operationCount == skipRowOperation) {
               out.append(String.format("%s %s\n", ProcessFolder.commandsComment, rowOperation));
-            }
-            else {
+            } else {
               out.append(rowOperation);
               out.append("\n");
-//              Long itemSize = ItemSize.INSTANCE.getValueOf(path);
-//              logger.info(groupType);
-              if (groupType.equals("F")){
+              // Long itemSize = ItemSize.INSTANCE.getValueOf(path);
+              // logger.info(groupType);
+              if (groupType.equals("F")) {
                 recoveredSize += groupSize;
               }
-              // TODO: Add sizes here. We will keep the skipped row item. Size must be local to the method
+              // TODO: Add sizes here. We will keep the skipped row item. Size
+              // must be local to the method
             }
             operationCount++;
           }
@@ -117,7 +118,7 @@ public enum Duplicates implements Processors, DBSingleStorage {
     }
     humanBytes = FileUtils.byteCountToDisplaySize(recoveredSize);
     out.insert(0, String.format("%s Drive space to recover: %s\n", ProcessFolder.commandsComment, humanBytes));
-    out.insert(0,String.format("%s %s\n", ProcessFolder.commandsComment, "Duplicates done!"));
+    out.insert(0, String.format("%s %s\n", ProcessFolder.commandsComment, "Duplicates done!"));
     System.out.println(out);
     logger.info(String.format("%s %s", ProcessFolder.commandsComment, "Duplicates done!"));
     logger.info(String.format("Drive space to recover: %s bytes", humanBytes));
@@ -145,8 +146,7 @@ public enum Duplicates implements Processors, DBSingleStorage {
       hashedPaths.put(entry.getKey(), entry.getValue());
       if (itemsType.equals("D")) {
         directoriesSortedBySize.put(size, hashedPaths);
-      }
-      else {
+      } else {
         filesSortedBySize.put(size, hashedPaths);
       }
     }
@@ -192,8 +192,7 @@ public enum Duplicates implements Processors, DBSingleStorage {
     }
     if (itemType.size() == 1) {
       return itemType.iterator().next();
-    }
-    else {
+    } else {
       throw new IllegalArgumentException("The paths do not have the same type, folder or file");
     }
   }
@@ -221,9 +220,8 @@ public enum Duplicates implements Processors, DBSingleStorage {
     }
     if (sizes.size() == 1) {
       return sizes.iterator().next();
-    }
-    else {
-      String hash= ItemHash.INSTANCE.getValueOf(paths.get(0));
+    } else {
+      String hash = ItemHash.INSTANCE.getValueOf(paths.get(0));
       String message = String.format("These items have the same hash:'%s' but do not have the same size:\n%s", hash, logPaths.toString());
       throw new IllegalArgumentException(message);
     }

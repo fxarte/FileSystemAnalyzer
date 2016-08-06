@@ -41,14 +41,14 @@ public enum PrimeBasedIdentity implements FileAnalyzer, DBSingleStorage {
       Long remainder = pr.getValue() - pr.getPrime();
       DBInstance.updateValue(path, pr.getPrime().toString(), remainder.toString());
     } catch (IOException ex) {
-    	System.err.println(ex);
+      System.err.println(ex);
     }
   }
 
   @Override
   public void analyzeItems(FileContext context) {
     String folderPath = context.getPath().toString();
-   // System.out.print(String.format("Processing folder: %s ", folderPath));
+    // System.out.print(String.format("Processing folder: %s ", folderPath));
     File folder = new File(folderPath);
     File[] IOItems = folder.listFiles();
     Long sum = 1L;
@@ -69,7 +69,7 @@ public enum PrimeBasedIdentity implements FileAnalyzer, DBSingleStorage {
     PrimeRepresentation pr = new PrimeRepresentation(sum);
     Long remainder = pr.getValue() - pr.getPrime();
     DBInstance.updateValue(folderPath, pr.getPrime().toString(), remainder.toString());
-   // System.out.println("... done! DB updated");
+    // System.out.println("... done! DB updated");
   }
 
   PrimeRepresentation processPrimeBasedHash(FileContext context) throws IOException {
@@ -79,22 +79,23 @@ public enum PrimeBasedIdentity implements FileAnalyzer, DBSingleStorage {
     } else {
       fis = new FileInputStream(context.getPath().toString());
     }
-    long sz= context.getFileAttributes().size();
-    //byte[] bytes = context.getBytes();
+    long sz = context.getFileAttributes().size();
+    // byte[] bytes = context.getBytes();
     Long hc;// = fis.hashCode();//237938801
     hc = someNewHashCode(context);
     return new PrimeRepresentation(hc);
-    //System.out.println(String.format("Path: %s; hash: %d; prime: %s",context.getPath().toString(), hc, pr));
+    // System.out.println(String.format("Path: %s; hash: %d; prime: %s",context.getPath().toString(),
+    // hc, pr));
 
   }
 
   private Long someNewHashCode(FileContext context) throws IOException {
-    long sum=0;
+    long sum = 0;
     byte[] bytes = context.getBytes();
     int pos = 1;
-    for (byte b : bytes){
+    for (byte b : bytes) {
       sum += b;
-      sum +=(pos%3);
+      sum += (pos % 3);
       pos++;
     }
     return sum;

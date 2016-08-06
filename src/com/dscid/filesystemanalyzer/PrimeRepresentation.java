@@ -13,33 +13,37 @@ package com.dscid.filesystemanalyzer;
 public class PrimeRepresentation {
   long prime;
   long value;
-  public PrimeRepresentation(long n){
-    if (n==0){
-      //throw new IllegalArgumentException("Zero not supported");
+
+  public PrimeRepresentation(long n) {
+    if (n == 0) {
+      // throw new IllegalArgumentException("Zero not supported");
     }
     value = n;
     prime = n;
     while (!isPrime(prime)) {
-      prime --;
+      prime--;
     }
   }
-  public Long getPrime(){
+
+  public Long getPrime() {
     return prime;
   }
-  public Long getValue(){
+
+  public Long getValue() {
     return value;
   }
-  
+
   @Override
-  public String toString(){
+  public String toString() {
     return String.format("%d + %d", prime, (value - prime));
   }
+
   static boolean isPrime(long n) {
-    //check if n is a multiple of 2
+    // check if n is a multiple of 2
     if (n % 2 == 0) {
       return false;
     }
-    //if not, then just check the odds
+    // if not, then just check the odds
     for (int i = 3; i * i <= n; i += 2) {
       if (n % i == 0) {
         return false;
