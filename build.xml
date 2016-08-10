@@ -21,6 +21,7 @@
       <arg value="-1" />
       <arg value="--pretty=format:%h" />
     </exec>
+    <property name="jar.file" value="${dist.dir}/${projectName}-${git.revision}.jar" />
   </target>
 
   <path id="FileSystemAnalyzer.classpath">
@@ -29,21 +30,6 @@
     </fileset>
     <pathelement location="${build.dir}" />
   </path>
-  <!-- <pathconvert property="manifest.classpath" pathsep="${line.separator} ">
-    <path refid="FileSystemAnalyzer.classpath"/>
-    <mapper>
-      <chainedmapper>
-        <flattenmapper/>
-        <globmapper from="*.jar" to="lib/*.jar"/>
-      </chainedmapper>
-    </mapper>
-  </pathconvert> -->
-  <!-- <echo message="Updating manifest classpath to:${line.separator}${manifest.classpath}" /> -->
-  <manifestclasspath property="manifest.classpath" jarfile="${dist.dir}/${projectName}-${git.revision}.jar">
-    <classpath>
-        <fileset dir="${dist.dir}/lib" includes="*.jar"/>
-    </classpath>
-  </manifestclasspath>
 
   <target name="compile" depends="init" description="compile the source">
     <!-- Compile the java code from ${src.dir} into ${build.dir} -->
@@ -62,10 +48,16 @@
 
   <target name="dist" depends="compile, dist-folders" description="package, output to JAR">
 
+    <manifestclasspath property="manifest.classpath" jarfile="${jar.file}">
+      <classpath>
+          <fileset dir="${dist.dir}/lib" includes="*.jar"/>
+      </classpath>
+    </manifestclasspath>
+
   	<!-- <copy file="${lib.dir}/logging.properties" tofile="${dist.dir}/${lib.dir}/logging.properties" /> -->
 
     <echo message="Building APP JAR file" />
-    <jar jarfile="${dist.dir}/${projectName}-${git.revision}.jar" basedir="${build.dir}" >
+    <jar jarfile="${jar.file}" basedir="${build.dir}" >
 <!--      <zipgroupfileset dir="${lib.dir}">
       	<include name="*.jar"/>
 	  </zipgroupfileset> -->
@@ -82,14 +74,13 @@
     <copy file="settings.properties" tofile="${dist.dir}/settings.properties"/>
 
     <copy file="README.md" tofile="${dist.dir}/README.md"/>
-    <!-- Copy provided models to resource folder -->
-    <!-- <echo message="Copying from ${model.en.source.dir} to en-US" /> -->
+    <replace file="${dist.dir}/README.md" token="FileSystemAnalyserEclipse.jar" value="${jar.file}"/>
 
   </target>
 
   <target name="clean" description="clean up">
-    <delete dir="${build.dir}" />
-    <delete dir="${dist.dir}" />
+    <delete dir="${build.dir}" failonerror="false" />
+    <delete dir="${dist.dir}" failonerror="false" />
   </target>
 
   <!-- Default, run this -->
