@@ -49,7 +49,7 @@ public class ProcessFolder {
   private final Map<WatchKey, Path> keys;
   static boolean recursive;
   public static String watchDirectory;
-  public static String commandsOutPut;
+  public static String duplicatesReport;
   public static String commandsOS;
   public static String commandsComment;
   public static String commandsRowOperations;
@@ -58,6 +58,7 @@ public class ProcessFolder {
   public static String logFile = logFolder + "/output.log";
   public static Integer showBiggestItems;
   public static boolean skipProcessed;
+  public static String similarFoldersReport;
 
   private boolean trace = true;
   public static final Boolean refreshDB = skipProcessed;
@@ -76,7 +77,8 @@ public class ProcessFolder {
       recursive = "yes".equals(prop.getProperty("recurse").toLowerCase());
       String watchDirectoryPropertyValue = prop.getProperty("watchDirectory");
       commandsOS = prop.getProperty("commandsOS");
-      commandsOutPut = prop.getProperty("commandsOutPut", "cmds.log");
+      duplicatesReport = prop.getProperty("duplicatesReport", "duplicates.log");
+      similarFoldersReport = prop.getProperty("similarFoldersReport", "similar_folders.log");
       commandsComment = prop.getProperty("commandsComment", "# ");
       commandsRowOperations = prop.getProperty("commandsRowOperations", "# ");
       commandsOperationSkipRow = prop.getProperty("commandsOperationSkipRow", "last");

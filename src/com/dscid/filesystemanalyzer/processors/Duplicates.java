@@ -53,7 +53,8 @@ public enum Duplicates implements Processors, DBSingleStorage {
     System.out.println(String.format("%s processing Duplicates ... ", ProcessFolder.commandsComment));
 
     try {
-      System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/" + ProcessFolder.commandsOutPut)), true));
+      System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/" + ProcessFolder.duplicatesReport)), true));
+      System.out.println(";echo 'Warining!! You are trying to run this file as a script. Please check before running it again.';\nexit(1)");
     } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

@@ -29,7 +29,8 @@ public enum Similarity implements Processors, DBSingleStorage {
   @Override
   public void analyzeItems() {
     try {
-      System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/similar_folders.log")), true));
+      System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/"+ProcessFolder.similarFoldersReport)), true));
+      System.out.println(";echo 'Warining!! You are trying to run this file as a script. Please check before running it again.';\nexit(1)");
     } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -88,7 +89,7 @@ public enum Similarity implements Processors, DBSingleStorage {
         List<Integer> vectorB = vectorList.get(keyY);
 
         if (vectorA.size() != vectorB.size()) {
-          System.err.println("salkjdlkadjlkasj");
+          throw new IllegalStateException("There was a problem while generating the similarity matrix. Found two vectors with different sizes.");
         }
 
         double similarity = cosineSimilarity(vectorA, vectorB);
