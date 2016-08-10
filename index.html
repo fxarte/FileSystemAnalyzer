@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>File System Analyzer by fxarte</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>File System Analyzer</h1>
+        <p>Generates reports for files and folders to help declutter and organize data a in smarter way.</p>
+
+        <p class="view"><a href="https://github.com/fxarte/FileSystemAnalyzer">View the Project on GitHub <small>fxarte/FileSystemAnalyzer</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/fxarte/FileSystemAnalyzer/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/fxarte/FileSystemAnalyzer/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/fxarte/FileSystemAnalyzer">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="file-system-analyzer" class="anchor" href="#file-system-analyzer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>File System Analyzer</h1>
+
+<p>This command line tool will scan all the files and subfolders of the provided starting folder, extracts information and generate useful reports that should help better organize the file system.
+Currently supported:</p>
+
+<ul>
+<li>Duplicates: files and folders. Hash (sha1) based </li>
+<li>Similar folders.</li>
+</ul>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirements:</h2>
+
+<p>Java 1.8</p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage:</h2>
+
+<p>Update provided settings.properties with the proper values:</p>
+
+<p><strong>Available options:</strong></p>
+
+<ul>
+<li>
+<code>watchDirectory</code>: Folder to analyze, value: valid path to directory</li>
+<li>
+<code>recurse</code>: whether to go deeper that the provided folder, recommended value: yes</li>
+<li>
+<code>commandsRowOperations</code>: When the report is build, what command line associate the paths found</li>
+<li>
+<code>skipProcessed</code>:  whether to ignore or not items already analyzed</li>
+<li>
+<code>commandsOperationSkipRow</code>:  whether to leave the last|first row on each group without command operation</li>
+<li>
+<code>showBiggestItems</code>:  how many items to show in the report</li>
+<li>
+<p><strong>locations options</strong>:</p>
+
+<ul>
+<li>
+<code>logFolder</code>=logs</li>
+<li>
+<code>duplicatesReport</code>=duplicates.log</li>
+<li>
+<code>similarFoldersReport</code>=similar_folders.log</li>
+</ul>
+</li>
+</ul>
+
+<h3>
+<a id="run" class="anchor" href="#run" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Run:</h3>
+
+<div class="highlight highlight-source-shell"><pre>java -Djava.library.path=<span class="pl-s"><span class="pl-pds">"</span>libs<span class="pl-pds">"</span></span> -jar <span class="pl-s"><span class="pl-pds">"</span>FileSystemAnalyserEclipse.jar<span class="pl-pds">"</span></span> </pre></div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/fxarte">fxarte</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
