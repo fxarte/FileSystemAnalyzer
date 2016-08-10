@@ -14,6 +14,12 @@ Update provided settings.properties with the proper values:
 * `skipProcessed`: <True|False> whether to ignore or not items already analyzed
 * `commandsOperationSkipRow`: <First|Last> whether to leave the last|first row on each group without command operation
 * `showBiggestItems`: <integer> how many items to show in the report
+* **locations options**:
+
+    + `logFolder`=logs
+    + `duplicatesReport`=duplicates.log
+    + `similarFoldersReport`=similar_folders.log
+
 
 ### Run:
 
