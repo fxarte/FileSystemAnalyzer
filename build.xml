@@ -47,7 +47,7 @@
   <target name="dist-folders" />
 
   <target name="dist" depends="compile, dist-folders" description="package, output to JAR">
-    <manifestclasspath property="manifest.classpath" jarfile="${dist.dir}/${projectName}-${git.revision}.jar">
+    <manifestclasspath property="manifest.classpath" jarfile="${projectName}-${git.revision}.jar">
       <classpath>
         <fileset dir="./lib">
           <include name="**/*.jar" />
