@@ -26,7 +26,7 @@ Update provided settings.properties with the proper values:
 ```
 #!shell
 
-java -Djava.library.path="libs" -jar "FileSystemAnalyserEclipse.jar" 
+java -Djava.library.path="lib" -jar "FileSystemAnalyserEclipse.jar"
 
 ```
 
