@@ -42,6 +42,7 @@ import com.dscid.filesystemanalyzer.processors.DataProcessorsAPI;
 
 /**
  * Example to watch a directory (or tree) for changes to files.
+ * TODO: See possible improvements: http://stackoverflow.com/questions/2056221/recursively-list-files-in-java/24006711
  */
 public class ProcessFolder {
 
@@ -154,6 +155,7 @@ public class ProcessFolder {
    * Creates a WatchService and registers the given directory
    */
   ProcessFolder(Path dir, boolean recursive) throws IOException {
+    //TODO: Clean up maybe the watch pattern is not needed
     this.watcher = FileSystems.getDefault().newWatchService();
     this.keys = new HashMap<WatchKey, Path>();
     this.recursive = recursive;
@@ -246,6 +248,8 @@ public class ProcessFolder {
   public static void main(String[] args) throws IOException {
     // load properties
     init();
+    PrintStream stdout = null;
+    stdout = ProcessFolder.toggleStdOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), true));
 
     // parse arguments
     // if (args.length == 0 || args.length > 2) {
@@ -280,7 +284,10 @@ public class ProcessFolder {
       ProcessFolder p = new ProcessFolder(dir, recursive);
       System.out.println("Start processing folder " + watchDirectory);
       processProcessed();
+      System.out.println("Processing done!");
       // p.processEvents();
+      stdout = ProcessFolder.toggleStdOut(stdout);
+      System.out.println("Processing done!");
     } else {
       System.err.println("Cannot access the folder '" + watchDirectory + "' for processing");
     }
@@ -290,13 +297,27 @@ public class ProcessFolder {
   private static void init() {
     loadProperties();
 
-    reRouteOutput();
+//    reRouteOutput();
 
   }
 
+  static private PrintStream stdout = System.out;;
+  public static PrintStream toggleStdOut(PrintStream out) {
+    PrintStream prevOut; 
+    if (out != null) {
+      prevOut = stdout;
+      stdout = out;
+      System.setOut(stdout);
+      return prevOut;
+    }
+    System.setOut(stdout);
+    return stdout;
+  }
+  
   private static void reRouteOutput() {
     new File(logFolder).mkdirs();
     try {
+      stdout = System.out;
       System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), true));
     } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block
@@ -304,7 +325,6 @@ public class ProcessFolder {
     }
     System.out.println("=====================================================================================\n" + logFile + "\n=====================================================================================");
     System.err.println("System.out is being sent to:" + logFile);
-
   }
 
   private static void processProcessed() {

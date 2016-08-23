@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 import com.dscid.filesystemanalyzer.App.ProcessFolder;
 import com.dscid.filesystemanalyzer.DB.DBSingleStorage;
@@ -20,6 +21,7 @@ import com.dscid.filesystemanalyzer.utils.ValueComparator;
 
 public enum Similarity implements Processors, DBSingleStorage {
   INSTANCE;
+  private static final Logger logger = Logger.getLogger(Similarity.class.getName());
   // private final DBLayer DBInstance;
 
   // private Similarity() {
@@ -28,8 +30,14 @@ public enum Similarity implements Processors, DBSingleStorage {
 
   @Override
   public void analyzeItems() {
+    String message = String.format("%s Processing Similarity ... ", ProcessFolder.commandsComment);
+    logger.info(message);
+    System.out.println(message);
+    
+    PrintStream stdout = null;
+    
     try {
-      System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/"+ProcessFolder.similarFoldersReport)), true));
+      stdout = ProcessFolder.toggleStdOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/"+ProcessFolder.similarFoldersReport)), true));
       System.out.println(";echo 'Warining!! You are trying to run this file as a script. Please check before running it again.';\nexit(1)");
     } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block
@@ -40,6 +48,7 @@ public enum Similarity implements Processors, DBSingleStorage {
     // 1 Get all folders
     Map<String, List<String>> entrySet = ItemCore.INSTANCE.getGroupedValues(1);
     List<String> dirs = entrySet.get("D");
+    dirs.remove(ProcessFolder.watchDirectory);
     List<String> hasheshDictionary = ItemHash.INSTANCE.getDistinctHashes();
     Map<String, List<Integer>> vectorList = new HashMap<String, List<Integer>>();
     for (String dir : dirs) {
@@ -74,6 +83,9 @@ public enum Similarity implements Processors, DBSingleStorage {
       vectorList.put(dir, vec);
     }
     generateSimilarityMatrix(dirs, vectorList);
+    ProcessFolder.toggleStdOut(stdout);
+    System.out.println(String.format("%s %s", ProcessFolder.commandsComment, "Similarity done!"));
+//    System.out.println(String.format("Drive space to recover: %s bytes", humanBytes));
   }
 
   private void generateSimilarityMatrix(List<String> dirs, Map<String, List<Integer>> vectorList) {
@@ -86,10 +98,13 @@ public enum Similarity implements Processors, DBSingleStorage {
         String keyX = dirs.get(i);
         List<Integer> vectorA = vectorList.get(keyX);
         String keyY = dirs.get(k);
+        
         List<Integer> vectorB = vectorList.get(keyY);
 
         if (vectorA.size() != vectorB.size()) {
-          throw new IllegalStateException("There was a problem while generating the similarity matrix. Found two vectors with different sizes.");
+          String message = "There was a problem while generating the similarity matrix. Found two vectors with different sizes.";
+          logger.info(message);
+          throw new IllegalStateException(message);
         }
 
         double similarity = cosineSimilarity(vectorA, vectorB);
@@ -152,7 +167,9 @@ public enum Similarity implements Processors, DBSingleStorage {
     if (sizeA != sizeB) {
       // vectorListB.addAll(new
       // ArrayList<Integer>(Collections.nCopies(sizeA-sizeB, 0)));
-      System.err.println("salkjdlkadjlkasj");
+      String message = "ERROR. Something is not working as expected. System encounter vectors with different sizes while calculating cosine similarity";
+      logger.severe(message);
+      throw new IllegalStateException(message);
     }
     /*
      * else if (sizeA < sizeB) { vectorListA.addAll(new
@@ -172,6 +189,13 @@ public enum Similarity implements Processors, DBSingleStorage {
       dotProduct += vectorA[i] * vectorB[i];
       normA += Math.pow(vectorA[i], 2);
       normB += Math.pow(vectorB[i], 2);
+    }
+    if (normA == 0 || normB == 0) {
+      if (normA != normB) {
+        return -1.0;
+      } else {
+        return 1.0;
+      }
     }
     double result = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     return result;

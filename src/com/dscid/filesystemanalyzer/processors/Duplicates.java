@@ -49,11 +49,13 @@ public enum Duplicates implements Processors, DBSingleStorage {
   public void analyzeItems() {
     StringBuilder out = new StringBuilder();
     String humanBytes = "";
-    logger.info(String.format("%s processing Duplicates ... ", ProcessFolder.commandsComment));
-    System.out.println(String.format("%s processing Duplicates ... ", ProcessFolder.commandsComment));
+    String message = String.format("%s processing Duplicates ... ", ProcessFolder.commandsComment);
+    logger.info(message);
+    System.out.println(message);
 
+    PrintStream stdout = null;
     try {
-      System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/" + ProcessFolder.duplicatesReport)), true));
+      stdout = ProcessFolder.toggleStdOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(ProcessFolder.logFolder + "/" + ProcessFolder.duplicatesReport)), true));
       System.out.println(";echo 'Warining!! You are trying to run this file as a script. Please check before running it again.';\nexit(1)");
     } catch (FileNotFoundException e) {
       // TODO Auto-generated catch block
@@ -68,6 +70,8 @@ public enum Duplicates implements Processors, DBSingleStorage {
     // for instace 2 empty folder that are not part of similar tress at all.
     // May be is best to leav it as is, as clean the FS iteratively
 
+    boolean skipRow = ("first".equals(ProcessFolder.commandsOperationSkipRow));
+    
     // Loop types: Directories and Files for now
     for (Map.Entry<String, Map<Long, Map<String, List<String>>>> entry : groupedSizes.entrySet()) {
       String groupType = entry.getKey();
@@ -85,13 +89,13 @@ public enum Duplicates implements Processors, DBSingleStorage {
         Long groupSize = hashedPaths.getKey();
 
         humanBytes = FileUtils.byteCountToDisplaySize(groupSize);
-        out.append(String.format("%s Item: %d  Size: %s ", ProcessFolder.commandsComment, c, humanBytes));
+        out.append(String.format("\n%s Item: %d  Size: %s ", ProcessFolder.commandsComment, c, humanBytes));
 
         for (Map.Entry<String, List<String>> hashedValues : hashedPaths.getValue().entrySet()) {
           String groupHash = hashedValues.getKey();
           out.append(String.format("Hash: %s\n", groupHash));
           int operationCount = 0;
-          int skipRowOperation = ("first".equals(ProcessFolder.commandsOperationSkipRow)) ? 0 : hashedValues.getValue().size() - 1;
+          int skipRowOperation = skipRow ? 0 : hashedValues.getValue().size() - 1;
 
           // Loop through items with equal hash code
           for (String path : hashedValues.getValue()) {
@@ -121,8 +125,11 @@ public enum Duplicates implements Processors, DBSingleStorage {
     out.insert(0, String.format("%s Drive space to recover: %s\n", ProcessFolder.commandsComment, humanBytes));
     out.insert(0, String.format("%s %s\n", ProcessFolder.commandsComment, "Duplicates done!"));
     System.out.println(out);
-    logger.info(String.format("%s %s", ProcessFolder.commandsComment, "Duplicates done!"));
     logger.info(String.format("Drive space to recover: %s bytes", humanBytes));
+    logger.info(String.format("%s %s", ProcessFolder.commandsComment, "Duplicates done!"));
+    stdout = ProcessFolder.toggleStdOut(stdout);
+    System.out.println(String.format("Drive space to recover: %s bytes", humanBytes));
+    System.out.println(String.format("%s %s", ProcessFolder.commandsComment, "Duplicates done!"));
   }
 
   /**
