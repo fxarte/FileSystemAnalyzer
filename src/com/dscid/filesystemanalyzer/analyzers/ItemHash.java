@@ -31,7 +31,6 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
   }
 
   Set<Class<? extends Analyzer>> getDependencies() {
-    // TODO Auto-generated method stub
     Set<Class<? extends Analyzer>> defensiveCopyMap = new LinkedHashSet<Class<? extends Analyzer>>();
     defensiveCopyMap.addAll(dependencies);
     return defensiveCopyMap;
@@ -103,6 +102,8 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
 
     File[] IOItems = folder.listFiles();
     try {
+      //TODO CHeck if this file read is unneeded as the folder analysis is pos-visit 
+      // and all hashes have been calculated
       for (final File path : IOItems) {
         if (path.isFile()) {
 
@@ -223,7 +224,7 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
     return DBInstance.getChildrenValues(parent);
   }
 
-  public List<String> getDistinctHashes() {
+  public String[] getDistinctHashes() {
     return DBInstance.getDistinctValues();
   }
 
