@@ -92,39 +92,12 @@ public enum ItemHash implements FileAnalyzer, DBSingleStorage {
 
     String dbSizeValue = sizes.selectValueOf(dirPath.toString());
     Long dirPathSize = Long.valueOf(dbSizeValue);
-    /*
-     * if (dirPathSize.equals(0L)) { return "<empty>"; }
-     */
     // adding the folder size
     digest.update((byte) dirPathSize.byteValue());
-
-    File folder = new File(dirPath.toString());
-
-    File[] IOItems = folder.listFiles();
-    try {
-      //TODO CHeck if this file read is unneeded as the folder analysis is pos-visit 
-      // and all hashes have been calculated
-      for (final File path : IOItems) {
-        if (path.isFile()) {
-
-          InputStream fis = new FileInputStream(path);
-          int n = 0;
-          byte[] buffer = new byte[8192];
-          while (n != -1) {
-            n = fis.read(buffer);
-            if (n > 0) {
-              digest.update(buffer, 0, n);
-            }
-          }
-          fis.close();
-        } else {
-          // TOOD: lets add a 0 per sub dir for now
-          String folderHash = DBInstance.selectValueOf(path.toString());
-          digest.update(Base64.decodeBase64(folderHash));
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+    List<String> children = ItemCore.INSTANCE.getChildrenPaths(dirPath.toString());
+    for (String child : children) {
+      String childHash = DBInstance.selectValueOf(child);
+      digest.update(Base64.decodeBase64(childHash));
     }
 
     byte[] hash = digest.digest();

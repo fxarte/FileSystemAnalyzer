@@ -4,6 +4,8 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +38,7 @@ public enum Duplicates implements Processors, DBSingleStorage {
   // private final DBLayer DBInstance;
 
   private static final Logger logger = Logger.getLogger(Duplicates.class.getName());
-
+  private static Set<String> processedPaths = new HashSet<>();
   private Duplicates() {
     // DBInstance = DBLayer.getDbInstanceOf(Duplicates.class);
   }
@@ -78,7 +80,7 @@ public enum Duplicates implements Processors, DBSingleStorage {
       out.append(String.format("%s Type: %s\n", ProcessFolder.commandsComment, groupType));
       Map<Long, Map<String, List<String>>> sortedBySizeGroup = entry.getValue();
 
-      // Loop through the first 10 biggest sizes in decreasing order
+      // Loop through the first "c" biggest sizes in decreasing order
       int c = 0;
       for (Map.Entry<Long, Map<String, List<String>>> hashedPaths : sortedBySizeGroup.entrySet()) {
         if (ProcessFolder.showBiggestItems > 0) {
@@ -89,25 +91,37 @@ public enum Duplicates implements Processors, DBSingleStorage {
         Long groupSize = hashedPaths.getKey();
 
         humanBytes = FileUtils.byteCountToDisplaySize(groupSize);
-        out.append(String.format("\n%s Item: %d  Size: %s ", ProcessFolder.commandsComment, c, humanBytes));
+//        out.append(String.format("\n%s Item: %d  Size: %s ", ProcessFolder.commandsComment, c, humanBytes));
+        StringBuilder outHashGroup = new StringBuilder();
+        outHashGroup.append(String.format("\n%s Item: %d  Size: %s ", ProcessFolder.commandsComment, c, humanBytes));
 
         for (Map.Entry<String, List<String>> hashedValues : hashedPaths.getValue().entrySet()) {
           String groupHash = hashedValues.getKey();
-          out.append(String.format("Hash: %s\n", groupHash));
+          outHashGroup.append(String.format("Hash: %s\n", groupHash));
           int operationCount = 0;
           int skipRowOperation = skipRow ? 0 : hashedValues.getValue().size() - 1;
 
           // Loop through items with equal hash code
           for (String path : hashedValues.getValue()) {
-            // TODO from path, get type and size
-            String rowOperation = String.format("   %s \"%s\"", ProcessFolder.commandsRowOperations, path);
+            // TODO Check if parent already included in the output
+            if (Duplicates.isPathParentProcessed(path)) {
+              outHashGroup.setLength(0);
+              c--;
+              break;
+            } else {
+              if (groupType.equals("D")) {
+                processedPaths.add(path);
+              }
+            }
+            String rowOperation = String.format("%s \"%s\"", ProcessFolder.commandsRowOperations, path);
             // TODO: With item type from groupType better prepare the row
             // operation
             if (operationCount == skipRowOperation) {
-              out.append(String.format("%s %s\n", ProcessFolder.commandsComment, rowOperation));
+              outHashGroup.append(String.format("%s %s\n", ProcessFolder.commandsComment, rowOperation));
             } else {
-              out.append(rowOperation);
-              out.append("\n");
+              outHashGroup.append("   ");
+              outHashGroup.append(rowOperation);
+              outHashGroup.append("\n");
               // Long itemSize = ItemSize.INSTANCE.getValueOf(path);
               // logger.info(groupType);
               if (groupType.equals("F")) {
@@ -119,6 +133,7 @@ public enum Duplicates implements Processors, DBSingleStorage {
             operationCount++;
           }
         }
+        out.append(outHashGroup);
       }
     }
     humanBytes = FileUtils.byteCountToDisplaySize(recoveredSize);
@@ -132,6 +147,17 @@ public enum Duplicates implements Processors, DBSingleStorage {
     System.out.println(String.format("%s %s", ProcessFolder.commandsComment, "Duplicates done!"));
   }
 
+  static boolean isPathParentProcessed(String path) {
+    for (String p : processedPaths){
+      Path child = Paths.get(path).toAbsolutePath();
+      Path parent = Paths.get(p).toAbsolutePath();
+      if (child.startsWith(parent)){
+        return true;
+      }
+    }
+    return false;
+  }
+  
   /**
    * Build a collection of paths grouped by hash and item type Has memory
    * issues, see the DB version

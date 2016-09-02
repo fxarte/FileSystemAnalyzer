@@ -97,7 +97,7 @@ public class ProcessFolder {
       commandsComment = prop.getProperty("commandsComment", "# ");
       commandsRowOperations = prop.getProperty("commandsRowOperations", "# ");
       commandsOperationSkipRow = prop.getProperty("commandsOperationSkipRow", "last");
-      showBiggestItems = Integer.valueOf(prop.getProperty("showBiggestItems", "-1"));
+      showBiggestItems = Integer.valueOf(prop.getProperty("showBiggestItems", "2147483647"));
       refreshDB = Boolean.valueOf(prop.getProperty("refreshDB", "True"));
       skipProcessed = Boolean.valueOf(prop.getProperty("skipProcessed", "False"));
       processOnly = Boolean.valueOf(prop.getProperty("processOnly", "False"));
