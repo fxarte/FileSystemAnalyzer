@@ -19,6 +19,7 @@ public enum FileAnalyzerAPI {
     al.add(ItemCore.INSTANCE);
     al.add(ItemSize.INSTANCE);
     al.add(ItemHash.INSTANCE);
+//    al.add(ItemVector.INSTANCE);
     return al;
   }
 

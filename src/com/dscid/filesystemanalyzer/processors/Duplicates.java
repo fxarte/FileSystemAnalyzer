@@ -100,7 +100,7 @@ public enum Duplicates implements Processors, DBSingleStorage {
           // Loop through items with equal hash code
           for (String path : hashedValues.getValue()) {
             // TODO from path, get type and size
-            String rowOperation = String.format("%s \"%s\"", ProcessFolder.commandsRowOperations, path);
+            String rowOperation = String.format("   %s \"%s\"", ProcessFolder.commandsRowOperations, path);
             // TODO: With item type from groupType better prepare the row
             // operation
             if (operationCount == skipRowOperation) {

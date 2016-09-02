@@ -62,6 +62,8 @@ public class SimpleObservableVisitor extends Observable implements FileVisitor<P
       context = FileContext.valueOf(file, arg1, input);
     }
 
+    //TODO Move the update of the timestamp after the analysis, 
+    // in case the process has a catastrophic failure it can be restarted with the option to analyze modified only
     ProcessingActions recommendedAction = context.getRecomendedAction();
     ItemModifiedTimeStamp.INSTANCE.analyzeItem(context);
     recommendedAction = context.getRecomendedAction();

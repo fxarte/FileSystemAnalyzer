@@ -11,10 +11,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
+import com.almworks.sqlite4java.SQLiteQueue;
+import com.almworks.sqlite4java.SQLiteJob;
 import com.almworks.sqlite4java.SQLiteStatement;
 import com.dscid.filesystemanalyzer.AnalyzerStorage;
 import com.dscid.filesystemanalyzer.App.ProcessFolder;
@@ -29,6 +33,7 @@ import com.dscid.filesystemanalyzer.App.ProcessFolder;
  * collection of all instantiated plug-ins fileSystemAnalyzer.DB's and will
  * guarantee uniqueness and coherence
  *
+ * TODO MySQL Optimization http://stackoverflow.com/questions/784173/what-are-the-performance-characteristics-of-sqlite-with-very-large-database-file
  * @author felix
  *
  */
@@ -38,7 +43,6 @@ public final class DBLayer implements AnalyzerStorage {
   private SQLiteConnection Connection = null;
 
   private final String mainTableName;
-
   private DBLayer(String pluginId) {
     this.mainTableName = pluginId.replace(".", "_");
   }
@@ -122,6 +126,7 @@ public final class DBLayer implements AnalyzerStorage {
    * @return
    */
   public List<String> getChildrenPaths(String parent) {
+    String queryStatement = "SELECT path FROM " + this.mainTableName + " WHERE parent=? ";
     List<String> results = new ArrayList<String>();
 
     String hashedValuesSQL = "SELECT path FROM " + this.mainTableName + " WHERE parent=? ";
@@ -177,26 +182,33 @@ public final class DBLayer implements AnalyzerStorage {
     return results;
   }
 
-  public List<String> getDistinctValues() {
-    List<String> results = new ArrayList<String>();
-    String hashedValuesSQL = "SELECT DISTINCT value FROM " + this.mainTableName;
+  /**
+   * Builds an array of unique values from the instance table
+   * 
+   * @return String[] of unique values
+   */
+  public String[] getDistinctValues() {
+    String queryStatement = "SELECT DISTINCT value FROM " + this.mainTableName;
+      TreeSet<String> results = new TreeSet<String>();
+      String hashedValuesSQL = queryStatement;
 
-    SQLiteConnection conn = this.Connection;
-    try {
-      if (!conn.isOpen()) {
-        conn.open(true);
+      SQLiteConnection conn = this.Connection;
+      try {
+        if (!conn.isOpen()) {
+          conn.open(true);
+        }
+
+        SQLiteStatement stmt = conn.prepare(hashedValuesSQL);
+
+        while (stmt.step()) {
+          results.add(stmt.columnString(0));
+        }
+      } catch (SQLiteException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
       }
 
-      SQLiteStatement stmt = conn.prepare(hashedValuesSQL);
-      while (stmt.step()) {
-        results.add(stmt.columnString(0));
-      }
-    } catch (SQLiteException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-    }
-
-    return results;
+      return results.toArray(new String[results.size()]);
   }
 
   public String concatValuesByParent(String parent) {
@@ -292,9 +304,9 @@ public final class DBLayer implements AnalyzerStorage {
 
   private static DBLayer getNew(Class<? extends DBSingleStorage> plugin) {
     assert plugin != null;
-    if (DBInstances.containsKey(plugin) && (DBInstances.get(plugin) instanceof DBLayer)) {
-      return DBInstances.get(plugin);
-    }
+//    if (DBInstances.containsKey(plugin) && (DBInstances.get(plugin) instanceof DBLayer)) {
+//      return DBInstances.get(plugin);
+//    }
     DBLayer _db = null;
     String PluginId = buildID(plugin);
     SQLiteConnection conn = null;
@@ -308,7 +320,7 @@ public final class DBLayer implements AnalyzerStorage {
     dbPath.append(System.getProperty("file.separator")).append(PluginId).append(".sqlite");
     File databasePath = new File(dbPath.toString());
 
-    // TODO: Update logic to avoid delteing DB file unnecessary
+    // TODO: Update logic to avoid deleting DB file unnecessarily
     try {
       if (ProcessFolder.refreshDB) {
         Files.deleteIfExists(databasePath.toPath());
@@ -340,11 +352,13 @@ public final class DBLayer implements AnalyzerStorage {
           conn.exec(INDEXES);
 
           DBInstances.put(plugin, _db);
+          
         } catch (SQLiteException e) {
           new DBLayerException(DBLayerException.UNABLE_TO_CREATE_DBLAYER_INSTANCE, e).printStackTrace();
         }
       }
     }
+
     System.out.println("Instantiating DBLAyer for pluggin " + PluginId + " hascode: " + _db.hashCode());
     // no instance found, lets create one
     return _db;
@@ -371,8 +385,7 @@ public final class DBLayer implements AnalyzerStorage {
    * @return
    */
   public static String selectInstanceValueOf(DBLayer dBInstance, String path, String dBFieldName) {
-    // System.out.println("dBInstance hascode " +dBInstance.hashCode());
-
+    String queryStatement = "SELECT " + dBFieldName + " FROM " + dBInstance.mainTableName + " WHERE path=?";
     String getValueSQL = "SELECT " + dBFieldName + " FROM " + dBInstance.mainTableName + " WHERE path=?";
 
     SQLiteConnection conn = dBInstance.Connection;
@@ -569,5 +582,6 @@ public final class DBLayer implements AnalyzerStorage {
   public static String join(Set<String> list, String glue) {
     return join(new ArrayList<String>(list), glue);
   }
+
 
 }

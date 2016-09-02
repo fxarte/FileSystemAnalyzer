@@ -30,13 +30,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.dscid.filesystemanalyzer.SimpleObservableVisitor;
+import com.dscid.filesystemanalyzer.DB.DBLayer;
 import com.dscid.filesystemanalyzer.analyzers.FileAnalyzer;
 import com.dscid.filesystemanalyzer.analyzers.FileAnalyzerAPI;
 import com.dscid.filesystemanalyzer.processors.DataProcessorsAPI;
+import com.dscid.filesystemanalyzer.processors.SupportedProcessors;
 
 //import org.apache.commons.io.FileUtils;
 
@@ -58,13 +63,22 @@ public class ProcessFolder {
   public static String logFolder = "logs";
   public static String logFile = logFolder + "/output.log";
   public static Integer showBiggestItems;
-  public static boolean skipProcessed;
   public static String similarFoldersReport;
+  public static boolean skipProcessed;
+  public static boolean processOnly;
+  public static boolean multithread = false;
+  private static final long startTime = System.nanoTime();
+  
 
   private boolean trace = true;
-  public static final Boolean refreshDB = skipProcessed;
+  public static Boolean refreshDB = true;
+  public static SupportedProcessors[] processors;
   private static final Logger logger = Logger.getLogger(ProcessFolder.class.getName());
 
+  public static long getTimeIntervalMillis() {
+    return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+  }
+  
   private static void loadProperties() {
     Properties prop = new Properties();
     InputStream input = null;
@@ -84,7 +98,16 @@ public class ProcessFolder {
       commandsRowOperations = prop.getProperty("commandsRowOperations", "# ");
       commandsOperationSkipRow = prop.getProperty("commandsOperationSkipRow", "last");
       showBiggestItems = Integer.valueOf(prop.getProperty("showBiggestItems", "-1"));
+      refreshDB = Boolean.valueOf(prop.getProperty("refreshDB", "True"));
       skipProcessed = Boolean.valueOf(prop.getProperty("skipProcessed", "False"));
+      processOnly = Boolean.valueOf(prop.getProperty("processOnly", "False"));
+      //TODO If processOnly; then check if the required DBs are available??
+      
+      
+      processors = Stream.of(prop.getProperty("processors").split(" ?, ?"))
+          .map(v -> v.toUpperCase())
+          .map(SupportedProcessors::valueOf)
+          .toArray(size -> new SupportedProcessors[size]);
 
       logFolder = prop.getProperty("logFolder");
       logFile = logFolder + "/" + prop.getProperty("logFile");
@@ -280,22 +303,26 @@ public class ProcessFolder {
     // register directory and process its events
     Path dir = Paths.get(watchDirectory);
     if (/* refreshFileData && */Files.isWritable(dir)) {
-      System.out.println("Analyzing folder " + watchDirectory);
-      ProcessFolder p = new ProcessFolder(dir, recursive);
+      if (!processOnly) {
+        System.out.println("Analyzing folder " + watchDirectory);
+        ProcessFolder p = new ProcessFolder(dir, recursive);
+      } else {
+        System.out.println("Skipping analyzing folder " + watchDirectory);
+      }
       System.out.println("Start processing folder " + watchDirectory);
       processProcessed();
       System.out.println("Processing done!");
       // p.processEvents();
       stdout = ProcessFolder.toggleStdOut(stdout);
-      System.out.println("Processing done!");
     } else {
       System.err.println("Cannot access the folder '" + watchDirectory + "' for processing");
     }
-
+    System.out.printf("Processing done!\nDuration: %d msecs.\n", getTimeIntervalMillis());
   }
 
   private static void init() {
     loadProperties();
+    new File(logFolder).mkdirs();
 
 //    reRouteOutput();
 
@@ -315,7 +342,6 @@ public class ProcessFolder {
   }
   
   private static void reRouteOutput() {
-    new File(logFolder).mkdirs();
     try {
       stdout = System.out;
       System.setOut(new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)), true));
